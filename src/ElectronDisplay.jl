@@ -24,7 +24,7 @@ end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}) = true
 
-asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", "vega", url...)), "\\", "/")
+asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\", "/")
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}, x)
     payload = stringmime(MIME("application/vnd.vegalite.v2+json"), x)
@@ -33,9 +33,9 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.veg
     <html>
 
     <head>
-        <script src="file:///$(asset("vega.min.js"))"></script>
-        <script src="file:///$(asset("vega-lite.min.js"))"></script>
-        <script src="file:///$(asset("vega-embed.min.js"))"></script>
+        <script src="file:///$(asset("vega", "vega.min.js"))"></script>
+        <script src="file:///$(asset("vega", "vega-lite.min.js"))"></script>
+        <script src="file:///$(asset("vega", "vega-embed.min.js"))"></script>
     </head>
     <body>
       <div id="plotdiv"></div>
@@ -71,9 +71,41 @@ end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
 
+function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}, x)
+    payload = stringmime(MIME("application/vnd.vegalite.v2+json"), x)
+
+    data = # somehow extract the data stuff from payload
+    layout = # somehow extract the layout stuff from payload
+
+    html_page = """
+    <html>
+
+    <head>
+        <script src="file:///$(asset("plotly", "plotly-latest.min.js"))"></script>
+    </head>
+    <body>
+      <div id="plotdiv"></div>
+    </body>
+
+    <script type="text/javascript">
+
+      Plotly.newPlot('#plotdiv', $data, $layout);
+
+    </script>
+
+    </html>
+    """
+
+    w = Electron.Window(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+end
+
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}) = true
+
 function Base.display(d::ElectronDisplayType, x)
     if mimewritable("application/vnd.vegalite.v2+json", x)
         display(d,MIME("application/vnd.vegalite.v2+json"), x)
+    elseif mimewritable("application/vnd.plotly.v1+json", x)
+            display(d,MIME("application/vnd.plotly.v1+json"), x)
     elseif mimewritable("image/svg+xml", x)
         display(d,"image/svg+xml", x)
     elseif mimewritable("image/png", x)
