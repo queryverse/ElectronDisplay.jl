@@ -24,7 +24,7 @@ end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}) = true
 
-asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", "vega", url...)), "\\", "/")
+asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\", "/")
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}, x)
     payload = stringmime(MIME("application/vnd.vegalite.v2+json"), x)
@@ -33,9 +33,9 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.veg
     <html>
 
     <head>
-        <script src="file:///$(asset("vega.min.js"))"></script>
-        <script src="file:///$(asset("vega-lite.min.js"))"></script>
-        <script src="file:///$(asset("vega-embed.min.js"))"></script>
+        <script src="file:///$(asset("vega", "vega.min.js"))"></script>
+        <script src="file:///$(asset("vega", "vega-lite.min.js"))"></script>
+        <script src="file:///$(asset("vega", "vega-embed.min.js"))"></script>
     </head>
     <body>
       <div id="plotdiv"></div>
@@ -71,9 +71,53 @@ end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
 
+function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}, x)
+    payload = stringmime(MIME("application/vnd.plotly.v1+json"), x)
+
+    html_page = """
+    <html>
+
+    <head>
+        <script src="file:///$(asset("plotly", "plotly-latest.min.js"))"></script>
+    </head>
+    <body>
+    </body>
+
+    <script type="text/javascript">
+        gd = (function() {
+            var WIDTH_IN_PERCENT_OF_PARENT = 100
+            var HEIGHT_IN_PERCENT_OF_PARENT = 100;
+            var gd = Plotly.d3.select('body')
+                .append('div').attr("id", "plotdiv")
+                .style({
+                    width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+                    'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+                    height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+                    'margin-top': (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+                })
+                .node();
+            var spec = $payload
+            Plotly.newPlot(gd, spec.data, spec.layout);
+            window.onresize = function() {
+                Plotly.Plots.resize(gd);
+                };
+            return gd;
+        })();
+    </script>
+
+    </html>
+    """
+
+    w = Electron.Window(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+end
+
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}) = true
+
 function Base.display(d::ElectronDisplayType, x)
     if mimewritable("application/vnd.vegalite.v2+json", x)
         display(d,MIME("application/vnd.vegalite.v2+json"), x)
+    elseif mimewritable("application/vnd.plotly.v1+json", x)
+            display(d,MIME("application/vnd.plotly.v1+json"), x)
     elseif mimewritable("image/svg+xml", x)
         display(d,"image/svg+xml", x)
     elseif mimewritable("image/png", x)
