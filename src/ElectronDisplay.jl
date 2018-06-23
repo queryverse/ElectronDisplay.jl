@@ -72,10 +72,7 @@ end
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}, x)
-    payload = stringmime(MIME("application/vnd.vegalite.v2+json"), x)
-
-    data = # somehow extract the data stuff from payload
-    layout = # somehow extract the layout stuff from payload
+    payload = stringmime(MIME("application/vnd.plotly.v1+json"), x)
 
     html_page = """
     <html>
@@ -84,13 +81,28 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plo
         <script src="file:///$(asset("plotly", "plotly-latest.min.js"))"></script>
     </head>
     <body>
-      <div id="plotdiv"></div>
     </body>
 
     <script type="text/javascript">
-
-      Plotly.newPlot('#plotdiv', $data, $layout);
-
+        gd = (function() {
+            var WIDTH_IN_PERCENT_OF_PARENT = 100
+            var HEIGHT_IN_PERCENT_OF_PARENT = 100;
+            var gd = Plotly.d3.select('body')
+                .append('div').attr("id", "plotdiv")
+                .style({
+                    width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+                    'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+                    height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+                    'margin-top': (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+                })
+                .node();
+            var spec = $payload
+            Plotly.newPlot(gd, spec.data, spec.layout);
+            window.onresize = function() {
+                Plotly.Plots.resize(gd);
+                };
+            return gd;
+        })();
     </script>
 
     </html>
