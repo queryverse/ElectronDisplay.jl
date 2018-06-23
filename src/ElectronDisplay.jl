@@ -71,6 +71,50 @@ end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
 
+function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vega.v3+json")}, x)
+    payload = stringmime(MIME("application/vnd.vega.v3+json"), x)
+
+    html_page = """
+    <html>
+
+    <head>
+        <script src="file:///$(asset("vega", "vega.min.js"))"></script>
+        <script src="file:///$(asset("vega", "vega-embed.min.js"))"></script>
+    </head>
+    <body>
+      <div id="plotdiv"></div>
+    </body>
+
+    <style media="screen">
+      .vega-actions a {
+        margin-right: 10px;
+        font-family: sans-serif;
+        font-size: x-small;
+        font-style: italic;
+      }
+    </style>
+
+    <script type="text/javascript">
+
+      var opt = {
+        mode: "vega",
+        actions: false
+      }
+
+      var spec = $payload
+
+      vegaEmbed('#plotdiv', spec, opt);
+
+    </script>
+
+    </html>
+    """
+
+    w = Electron.Window(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+end
+
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vega.v3+json")}) = true
+
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}, x)
     payload = stringmime(MIME("application/vnd.plotly.v1+json"), x)
 
@@ -116,6 +160,8 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v
 function Base.display(d::ElectronDisplayType, x)
     if mimewritable("application/vnd.vegalite.v2+json", x)
         display(d,MIME("application/vnd.vegalite.v2+json"), x)
+    elseif mimewritable("application/vnd.vega.v3+json", x)
+            display(d,MIME("application/vnd.vega.v3+json"), x)
     elseif mimewritable("application/vnd.plotly.v1+json", x)
             display(d,MIME("application/vnd.plotly.v1+json"), x)
     elseif mimewritable("image/svg+xml", x)
