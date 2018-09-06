@@ -1,10 +1,12 @@
 using ElectronDisplay
-using Gadfly
-using Base.Test
+using Electron
+using VegaLite
+using DataFrames
+using Test
 
 @testset "ElectronDisplay" begin
 
-p1 = plot(x=rand(10),y=rand(10),Geom.point)
+p1 =  DataFrame(x=rand(10),y=rand(10)) |> @vlplot(:point, x=:x, y=:y)
 
 f = display(p1)
 
