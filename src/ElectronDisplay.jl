@@ -1,9 +1,8 @@
-__precompile__()
 module ElectronDisplay
 
-using Electron
+using Electron, Base64
 
-struct ElectronDisplayType <: Base.Display end
+struct ElectronDisplayType <: Base.AbstractDisplay end
 
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/png")}, x)
@@ -24,7 +23,7 @@ end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}) = true
 
-asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\", "/")
+asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\" => "/")
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}, x)
     payload = stringmime(MIME("application/vnd.vegalite.v2+json"), x)
@@ -158,15 +157,15 @@ end
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}) = true
 
 function Base.display(d::ElectronDisplayType, x)
-    if mimewritable("application/vnd.vegalite.v2+json", x)
+    if showable("application/vnd.vegalite.v2+json", x)
         display(d,MIME("application/vnd.vegalite.v2+json"), x)
-    elseif mimewritable("application/vnd.vega.v3+json", x)
+    elseif showable("application/vnd.vega.v3+json", x)
             display(d,MIME("application/vnd.vega.v3+json"), x)
-    elseif mimewritable("application/vnd.plotly.v1+json", x)
+    elseif showable("application/vnd.plotly.v1+json", x)
             display(d,MIME("application/vnd.plotly.v1+json"), x)
-    elseif mimewritable("image/svg+xml", x)
+    elseif showable("image/svg+xml", x)
         display(d,"image/svg+xml", x)
-    elseif mimewritable("image/png", x)
+    elseif showable("image/png", x)
         display(d,"image/png", x)
     else
         throw(MethodError(Base.display,(d,x)))
