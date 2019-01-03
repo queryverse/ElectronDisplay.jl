@@ -1,10 +1,10 @@
 # ElectronDisplay
 
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![Build Status](https://travis-ci.org/davidanthoff/ElectronDisplay.jl.svg?branch=master)](https://travis-ci.org/davidanthoff/ElectronDisplay.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/i2pk3rsm9ratt6vn/branch/master?svg=true)](https://ci.appveyor.com/project/davidanthoff/electrondisplay-jl/branch/master)
+[![Build Status](https://travis-ci.org/queryverse/ElectronDisplay.jl.svg?branch=master)](https://travis-ci.org/queryverse/ElectronDisplay.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/it42y9jwhqp93a42/branch/master?svg=true)](https://ci.appveyor.com/project/queryverse/electrondisplay-jl/branch/master)
 [![ElectronDisplay](http://pkg.julialang.org/badges/ElectronDisplay_0.6.svg)](http://pkg.julialang.org/?pkg=ElectronDisplay)
-[![codecov.io](http://codecov.io/github/davidanthoff/ElectronDisplay.jl/coverage.svg?branch=master)](http://codecov.io/github/davidanthoff/ElectronDisplay.jl?branch=master)
+[![codecov.io](http://codecov.io/github/queryverse/ElectronDisplay.jl/coverage.svg?branch=master)](http://codecov.io/github/queryverse/ElectronDisplay.jl?branch=master)
 
 ## Overview
 
