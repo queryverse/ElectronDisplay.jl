@@ -6,6 +6,7 @@ os:
 julia:
   - 0.7
   - 1.0
+  - 1.1
   - nightly
 notifications:
   email: false
@@ -28,4 +29,4 @@ script:
   - if [[ `uname` = "Linux" ]]; then TESTCMD="xvfb-run julia"; else TESTCMD="julia"; fi
   - $TESTCMD --check-bounds=yes -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("ElectronDisplay"); Pkg.test("ElectronDisplay"; coverage=true)'
 after_success:
-  - julia -e 'cd(Pkg.dir("ElectronDisplay")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia -e 'using Pkg; cd(Pkg.dir("ElectronDisplay")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
