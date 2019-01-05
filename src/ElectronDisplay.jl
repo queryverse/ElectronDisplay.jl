@@ -4,13 +4,49 @@ using Electron, Base64
 
 struct ElectronDisplayType <: Base.AbstractDisplay end
 
+mutable struct ElectronDisplayConfig
+    single_window::Bool
+end
+
+"""
+    ElectronDisplay.CONFIG
+
+Configuration for ElectronDisplay.
+
+* `single_window::Bool = false`: If `true`, reuse existing window for
+  displaying a new content.  If `false` (default), create a new window
+  for each display.
+"""
+const CONFIG = ElectronDisplayConfig(false)
+
+const _window = Ref{Window}()
+
+function _getglobalwindow()
+    if !(isdefined(_window, 1) && _window[].exists)
+        _window[] = Electron.Window(
+            URI("about:blank"),
+            options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    end
+    return _window[]
+end
+
+function displayhtml(payload; kwargs...)
+    if CONFIG.single_window
+        w = _getglobalwindow()
+        loadhtml(w, payload)
+        return w
+    else
+        return Electron.Window(payload; kwargs...)
+    end
+end
+
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/png")}, x)
     img = stringmime(MIME("image/png"), x)
 
     payload = string("<img src=\"data:image/png;base64,", img, "\"/>")
 
-    w = Electron.Window(payload)
+    displayhtml(payload)
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/png")}) = true
@@ -18,7 +54,7 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/png")}) = true
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}, x)
     payload = stringmime(MIME("image/svg+xml"), x)
 
-    w = Electron.Window(payload)
+    displayhtml(payload)
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}) = true
@@ -65,7 +101,7 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.veg
     </html>
     """
 
-    w = Electron.Window(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    displayhtml(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
@@ -109,7 +145,7 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.veg
     </html>
     """
 
-    w = Electron.Window(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    displayhtml(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vega.v3+json")}) = true
@@ -151,7 +187,7 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plo
     </html>
     """
 
-    w = Electron.Window(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    displayhtml(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}) = true
