@@ -33,7 +33,7 @@ end
 function displayhtml(payload; kwargs...)
     if CONFIG.single_window
         w = _getglobalwindow()
-        loadhtml(w, payload)
+        load(w, payload)
         return w
     else
         return Electron.Window(payload; kwargs...)
