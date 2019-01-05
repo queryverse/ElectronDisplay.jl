@@ -34,6 +34,7 @@ function displayhtml(payload; kwargs...)
     if CONFIG.single_window
         w = _getglobalwindow()
         load(w, payload)
+        run(w.app, "BrowserWindow.fromId($(w.id)).show()")
         return w
     else
         return Electron.Window(payload; kwargs...)
