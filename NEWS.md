@@ -1,3 +1,6 @@
+# ElectronDisplay.jl v0.5.0 Release Notes
+* Add single_window configuration option
+
 # ElectronDisplay.jl v0.4.0 Release Notes
 * Drop julia 0.6 support, add julia 0.7/1.0 support
 
