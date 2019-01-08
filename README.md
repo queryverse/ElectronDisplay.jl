@@ -19,3 +19,12 @@ Pkg.add("ElectronDisplay")
 ````
 
 As soon as you load the package with ``using ElectronDisplay``, it will start to show plots that have the correct ``show`` methods in an electron window.
+
+## Configuration
+
+You can use the following configuration option to reuse existing window for displaying a new content.  The default behavior is to create a new window for each display.
+
+````julia
+using ElectronDisplay
+ElectronDisplay.CONFIG.single_window = true
+````
