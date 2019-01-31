@@ -42,6 +42,11 @@ function displayhtml(payload; kwargs...)
 end
 
 
+Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/html")}, x) =
+    displayhtml(repr("text/html", x))
+
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/html")}) = true
+
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/png")}, x)
     img = stringmime(MIME("image/png"), x)
 
