@@ -47,6 +47,37 @@ Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/html")}, x) =
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/html")}) = true
 
+function Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}, x)
+    html_page = string(
+        """
+        <!doctype html>
+        <html>
+
+        <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="file:///$(asset("github-markdown-css", "github-markdown.css"))">
+        <style>
+            .markdown-body {
+                box-sizing: border-box;
+                padding: 15px;
+            }
+        </style>
+        </head>
+        <body>
+        <article class="markdown-body">
+        """,
+        repr("text/html", x),
+        """
+         </article>
+        </body>
+         </html>
+        """,
+    )
+    displayhtml(html_page)
+end
+
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}) = true
+
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/png")}, x)
     img = stringmime(MIME("image/png"), x)
 
