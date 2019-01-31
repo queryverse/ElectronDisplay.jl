@@ -5,6 +5,7 @@ using Electron, Base64
 struct ElectronDisplayType <: Base.AbstractDisplay end
 
 mutable struct ElectronDisplayConfig
+    showable
     single_window::Bool
 end
 
@@ -13,11 +14,15 @@ end
 
 Configuration for ElectronDisplay.
 
+* `showable = Base.showable`: A function with signature
+  `showable(mime::String, x::Any) :: Bool`.  This determines if object
+  `x` is displayed by `ElectronDisplay`.  Default to `Base.showable`.
+
 * `single_window::Bool = false`: If `true`, reuse existing window for
   displaying a new content.  If `false` (default), create a new window
   for each display.
 """
-const CONFIG = ElectronDisplayConfig(false)
+const CONFIG = ElectronDisplayConfig(showable, false)
 
 const _window = Ref{Window}()
 
@@ -230,16 +235,20 @@ end
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}) = true
 
 function Base.display(d::ElectronDisplayType, x)
-    if showable("application/vnd.vegalite.v2+json", x)
+    if CONFIG.showable("application/vnd.vegalite.v2+json", x)
         display(d,MIME("application/vnd.vegalite.v2+json"), x)
-    elseif showable("application/vnd.vega.v3+json", x)
+    elseif CONFIG.showable("application/vnd.vega.v3+json", x)
             display(d,MIME("application/vnd.vega.v3+json"), x)
-    elseif showable("application/vnd.plotly.v1+json", x)
+    elseif CONFIG.showable("application/vnd.plotly.v1+json", x)
             display(d,MIME("application/vnd.plotly.v1+json"), x)
-    elseif showable("image/svg+xml", x)
+    elseif CONFIG.showable("image/svg+xml", x)
         display(d,"image/svg+xml", x)
-    elseif showable("image/png", x)
+    elseif CONFIG.showable("image/png", x)
         display(d,"image/png", x)
+    elseif CONFIG.showable("text/markdown", x)
+        display(d, "text/markdown", x)
+    elseif CONFIG.showable("text/html", x)
+        display(d, "text/html", x)
     else
         throw(MethodError(Base.display,(d,x)))
     end
