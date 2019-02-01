@@ -28,3 +28,10 @@ You can use the following configuration option to reuse existing window for disp
 using ElectronDisplay
 ElectronDisplay.CONFIG.single_window = true
 ````
+
+To control objects to be handled by `ElectronDisplay`, you can set `ElectronDisplay.CONFIG.showable` (which defaults to `Base.showable`).  For example, to avoid showing help output with `?thing` to `ElectronDisplay`, you can use:
+
+````julia
+using Markdown
+ElectronDisplay.CONFIG.showable = (m, x) -> !(x isa Markdown.MD) && showable(m, x)
+````
