@@ -1,5 +1,7 @@
 module ElectronDisplay
 
+export electrondisplay
+
 using Electron, Base64
 
 struct ElectronDisplayType <: Base.AbstractDisplay end
@@ -235,24 +237,37 @@ end
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}) = true
 
 function Base.display(d::ElectronDisplayType, x)
-    if CONFIG.showable("application/vnd.vegalite.v2+json", x)
+    _display(CONFIG.showable, x)
+end
+
+function _display(showable, x)
+    d = ElectronDisplayType()
+    if showable("application/vnd.vegalite.v2+json", x)
         display(d,MIME("application/vnd.vegalite.v2+json"), x)
-    elseif CONFIG.showable("application/vnd.vega.v3+json", x)
+    elseif showable("application/vnd.vega.v3+json", x)
             display(d,MIME("application/vnd.vega.v3+json"), x)
-    elseif CONFIG.showable("application/vnd.plotly.v1+json", x)
+    elseif showable("application/vnd.plotly.v1+json", x)
             display(d,MIME("application/vnd.plotly.v1+json"), x)
-    elseif CONFIG.showable("image/svg+xml", x)
+    elseif showable("image/svg+xml", x)
         display(d,"image/svg+xml", x)
-    elseif CONFIG.showable("image/png", x)
+    elseif showable("image/png", x)
         display(d,"image/png", x)
-    elseif CONFIG.showable("text/markdown", x)
+    elseif showable("text/markdown", x)
         display(d, "text/markdown", x)
-    elseif CONFIG.showable("text/html", x)
+    elseif showable("text/html", x)
         display(d, "text/html", x)
     else
         throw(MethodError(Base.display,(d,x)))
     end
 end
+
+"""
+    electrondisplay([mime,] x)
+
+Show `x` in Electron window.  Use MIME `mime` if specified.
+"""
+electrondisplay(mime, x) = display(ElectronDisplayType(), mime, x)
+electrondisplay(x) = _display(showable, x)
 
 function __init__()
     Base.Multimedia.pushdisplay(ElectronDisplayType())
