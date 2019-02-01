@@ -20,6 +20,8 @@ Pkg.add("ElectronDisplay")
 
 As soon as you load the package with ``using ElectronDisplay``, it will start to show plots that have the correct ``show`` methods in an electron window.
 
+`ElectronDisplay` also exports a function `electrondisplay`.  You can use `electrondisplay(x)` to show `x` explicitly in `ElectronDisplay` (e.g., when another display has higher precedence).  You can also use `electrondisplay(mime, x)` to specify a MIME to be used.
+
 ## Configuration
 
 You can use the following configuration option to reuse existing window for displaying a new content.  The default behavior is to create a new window for each display.
