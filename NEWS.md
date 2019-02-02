@@ -1,3 +1,6 @@
+# ElectronDisplay.jl v.next Release Notes
+* Update vega and vega-embed
+
 # ElectronDisplay.jl v0.5.0 Release Notes
 * Add single_window configuration option
 
