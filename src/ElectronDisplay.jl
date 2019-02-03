@@ -52,14 +52,8 @@ function displayhtml(payload; kwargs...)
     end
 end
 
-
-Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/html")}, x) =
-    displayhtml(repr("text/html", x))
-
-Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/html")}) = true
-
-function Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}, x)
-    html_page = string(
+displayhtmlbody(payload) =
+    displayhtml(string(
         """
         <!doctype html>
         <html>
@@ -77,15 +71,32 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}, x
         <body>
         <article class="markdown-body">
         """,
-        repr("text/html", x),
+        payload,
         """
          </article>
         </body>
          </html>
         """,
-    )
-    displayhtml(html_page)
+    ))
+
+
+function Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/html")}, x)
+    html_page = repr("text/html", x)
+    if occursin(r"<html\b"i, html_page)
+        # Detect if object `x` rendered itself as a "standalone" HTML page.
+        # If so, display it as-is:
+        displayhtml(html_page)
+    else
+        # Otherwise, i.e., if `x` only produced an HTML fragment, apply
+        # our default CSS to it:
+        displayhtmlbody(html_page)
+    end
 end
+
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/html")}) = true
+
+Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}, x) =
+    displayhtmlbody(repr("text/html", x))
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}) = true
 
