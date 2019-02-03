@@ -23,4 +23,6 @@ f2 = display(p2)
 
 @test f2 === f   # Window is reused
 
+@test electrondisplay(@doc reduce) isa Electron.Window
+
 end

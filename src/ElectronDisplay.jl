@@ -1,10 +1,15 @@
 module ElectronDisplay
 
+export electrondisplay
+
 using Electron, Base64
 
 struct ElectronDisplayType <: Base.AbstractDisplay end
 
+electron_showable(m, x) = m ∉ ("text/html", "text/markdown") && showable(m, x)
+
 mutable struct ElectronDisplayConfig
+    showable
     single_window::Bool
 end
 
@@ -13,11 +18,17 @@ end
 
 Configuration for ElectronDisplay.
 
+* `showable`: A callable with signature `showable(mime::String,
+  x::Any) :: Bool`.  This determines if object `x` is displayed by
+  `ElectronDisplay`.  Default is to return `false` if `mime` is
+  `"text/html"` or `"text/markdown"` and otherwise fallbacks to
+  `Base.showable(mime, x)`.
+
 * `single_window::Bool = false`: If `true`, reuse existing window for
   displaying a new content.  If `false` (default), create a new window
   for each display.
 """
-const CONFIG = ElectronDisplayConfig(false)
+const CONFIG = ElectronDisplayConfig(electron_showable, false)
 
 const _window = Ref{Window}()
 
@@ -41,6 +52,42 @@ function displayhtml(payload; kwargs...)
     end
 end
 
+
+Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/html")}, x) =
+    displayhtml(repr("text/html", x))
+
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/html")}) = true
+
+function Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}, x)
+    html_page = string(
+        """
+        <!doctype html>
+        <html>
+
+        <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="file:///$(asset("github-markdown-css", "github-markdown.css"))">
+        <style>
+            .markdown-body {
+                box-sizing: border-box;
+                padding: 15px;
+            }
+        </style>
+        </head>
+        <body>
+        <article class="markdown-body">
+        """,
+        repr("text/html", x),
+        """
+         </article>
+        </body>
+         </html>
+        """,
+    )
+    displayhtml(html_page)
+end
+
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}) = true
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/png")}, x)
     img = stringmime(MIME("image/png"), x)
@@ -194,6 +241,11 @@ end
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}) = true
 
 function Base.display(d::ElectronDisplayType, x)
+    _display(CONFIG.showable, x)
+end
+
+function _display(showable, x)
+    d = ElectronDisplayType()
     if showable("application/vnd.vegalite.v2+json", x)
         display(d,MIME("application/vnd.vegalite.v2+json"), x)
     elseif showable("application/vnd.vega.v3+json", x)
@@ -204,10 +256,22 @@ function Base.display(d::ElectronDisplayType, x)
         display(d,"image/svg+xml", x)
     elseif showable("image/png", x)
         display(d,"image/png", x)
+    elseif showable("text/markdown", x)
+        display(d, "text/markdown", x)
+    elseif showable("text/html", x)
+        display(d, "text/html", x)
     else
         throw(MethodError(Base.display,(d,x)))
     end
 end
+
+"""
+    electrondisplay([mime,] x)
+
+Show `x` in Electron window.  Use MIME `mime` if specified.
+"""
+electrondisplay(mime, x) = display(ElectronDisplayType(), mime, x)
+electrondisplay(x) = _display(showable, x)
 
 function __init__()
     Base.Multimedia.pushdisplay(ElectronDisplayType())
