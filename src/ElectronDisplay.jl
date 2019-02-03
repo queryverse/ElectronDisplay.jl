@@ -2,7 +2,7 @@ module ElectronDisplay
 
 export electrondisplay
 
-using Electron, Base64
+using Electron, Base64, Markdown
 
 struct ElectronDisplayType <: Base.AbstractDisplay end
 
@@ -96,7 +96,10 @@ end
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/html")}) = true
 
 Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}, x) =
-    displayhtmlbody(repr("text/html", x))
+    displayhtmlbody(repr("text/html", asmarkdown(x)))
+
+asmarkdown(x::Markdown.MD) = x
+asmarkdown(x) = Markdown.parse(repr("text/markdown", x))
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}) = true
 
@@ -267,10 +270,10 @@ function _display(showable, x)
         display(d,"image/svg+xml", x)
     elseif showable("image/png", x)
         display(d,"image/png", x)
-    elseif showable("text/markdown", x)
-        display(d, "text/markdown", x)
     elseif showable("text/html", x)
         display(d, "text/html", x)
+    elseif showable("text/markdown", x)
+        display(d, "text/markdown", x)
     else
         throw(MethodError(Base.display,(d,x)))
     end
