@@ -1,6 +1,7 @@
 using ElectronDisplay
 using Electron
 using VegaLite
+using VegaDatasets
 using DataFrames
 using Test
 
@@ -23,6 +24,7 @@ f2 = display(p2)
 
 @test f2 === f   # Window is reused
 
+@test electrondisplay(dataset("cars")) isa Electron.Window
 @test electrondisplay(@doc reduce) isa Electron.Window
 
 end
