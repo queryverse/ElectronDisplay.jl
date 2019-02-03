@@ -6,6 +6,8 @@ using Electron, Base64
 
 struct ElectronDisplayType <: Base.AbstractDisplay end
 
+electron_showable(m, x) = m ∉ ("text/html", "text/markdown") && showable(m, x)
+
 mutable struct ElectronDisplayConfig
     showable
     single_window::Bool
@@ -16,15 +18,17 @@ end
 
 Configuration for ElectronDisplay.
 
-* `showable = Base.showable`: A function with signature
-  `showable(mime::String, x::Any) :: Bool`.  This determines if object
-  `x` is displayed by `ElectronDisplay`.  Default to `Base.showable`.
+* `showable`: A callable with signature `showable(mime::String,
+  x::Any) :: Bool`.  This determines if object `x` is displayed by
+  `ElectronDisplay`.  Default is to return `false` if `mime` is
+  `"text/html"` or `"text/markdown"` and otherwise fallbacks to
+  `Base.showable(mime, x)`.
 
 * `single_window::Bool = false`: If `true`, reuse existing window for
   displaying a new content.  If `false` (default), create a new window
   for each display.
 """
-const CONFIG = ElectronDisplayConfig(showable, false)
+const CONFIG = ElectronDisplayConfig(electron_showable, false)
 
 const _window = Ref{Window}()
 

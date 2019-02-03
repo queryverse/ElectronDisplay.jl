@@ -20,7 +20,7 @@ Pkg.add("ElectronDisplay")
 
 As soon as you load the package with ``using ElectronDisplay``, it will start to show plots that have the correct ``show`` methods in an electron window.
 
-`ElectronDisplay` also exports a function `electrondisplay`.  You can use `electrondisplay(x)` to show `x` explicitly in `ElectronDisplay` (e.g., when another display has higher precedence).  You can also use `electrondisplay(mime, x)` to specify a MIME to be used.
+`ElectronDisplay` also exports a function `electrondisplay`.  You can use `electrondisplay(x)` to show `x` explicitly in `ElectronDisplay` (e.g., when another display has higher precedence).  You can also use `electrondisplay(mime, x)` to specify a MIME to be used.  For example, to read the docstring of `reduce` in `ElectronDisplay`, you can use `electrondisplay(@doc reduce)`.
 
 ## Configuration
 
@@ -31,9 +31,9 @@ using ElectronDisplay
 ElectronDisplay.CONFIG.single_window = true
 ````
 
-To control objects to be handled by `ElectronDisplay`, you can set `ElectronDisplay.CONFIG.showable` (which defaults to `Base.showable`).  For example, to avoid showing help output with `?thing` to `ElectronDisplay`, you can use:
+To control objects to be handled by `ElectronDisplay`, you can set `ElectronDisplay.CONFIG.showable`.  By default, `ElectronDisplay` does not show markdown or HTML output.  To show everything in `ElectronDisplay` whenever it's supported, you can use:
 
 ````julia
 using Markdown
-ElectronDisplay.CONFIG.showable = (m, x) -> !(x isa Markdown.MD) && showable(m, x)
+ElectronDisplay.CONFIG.showable = showable
 ````
