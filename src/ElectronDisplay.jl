@@ -267,7 +267,22 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.dat
                 filter: true,
                 sortable: true
             },
-            columnDefs: payload.schema.fields.map(x => ({field: x.name})),
+            columnDefs: payload.schema.fields.map(function(x) {
+                if (x.type == "number" || x.type == "integer") {
+                    return {
+                        field: x.name,
+                        type: "numericColumn",
+                        filter: "agNumberColumnFilter"
+                    };
+                } else if (x.type == "date") {
+                    return {
+                        field: x.name,
+                        filter: "agDateColumnFilter"
+                    };
+                } else {
+                    return {field: x.name};
+                };
+            }),
             rowData: payload.data
         };
         var eGridDiv = document.querySelector('#myGrid');
