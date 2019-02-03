@@ -240,6 +240,46 @@ end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}) = true
 
+function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.dataresource+json")}, x)
+    payload = stringmime(MIME("application/vnd.dataresource+json"), x)
+
+    html_page = """
+    <html>
+
+    <head>
+        <script src="file://$(asset("ag-grid", "ag-grid-community.min.noStyle.js"))"></script>
+        <link rel="stylesheet" href="file://$(asset("ag-grid", "ag-grid.css"))">
+        <link rel="stylesheet" href="file://$(asset("ag-grid", "ag-theme-balham.css"))">
+    </head>
+    <body>
+        <div id="myGrid" style="height: 100%; width: 100%;" class="ag-theme-balham"></div>
+    </body>
+
+    <script type="text/javascript">
+        var payload = $payload;
+        var gridOptions = {
+            onGridReady: event => event.api.sizeColumnsToFit(),
+            onGridSizeChanged: event => event.api.sizeColumnsToFit(),
+            defaultColDef: {
+                resizable: true,
+                filter: true,
+                sortable: true
+            },
+            columnDefs: payload.schema.fields.map(x => ({field: x.name})),
+            rowData: payload.data
+        };
+        var eGridDiv = document.querySelector('#myGrid');
+        new agGrid.Grid(eGridDiv, gridOptions);
+    </script>
+
+    </html>
+    """
+
+    displayhtml(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+end
+
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.dataresource+json")}) = true
+
 function Base.display(d::ElectronDisplayType, x)
     _display(CONFIG.showable, x)
 end
@@ -252,6 +292,8 @@ function _display(showable, x)
             display(d,MIME("application/vnd.vega.v3+json"), x)
     elseif showable("application/vnd.plotly.v1+json", x)
             display(d,MIME("application/vnd.plotly.v1+json"), x)
+    elseif showable("application/vnd.dataresource+json", x)
+        display(d, "application/vnd.dataresource+json", x)
     elseif showable("image/svg+xml", x)
         display(d,"image/svg+xml", x)
     elseif showable("image/png", x)
