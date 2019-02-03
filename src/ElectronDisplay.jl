@@ -6,7 +6,9 @@ using Electron, Base64
 
 struct ElectronDisplayType <: Base.AbstractDisplay end
 
-electron_showable(m, x) = m ∉ ("text/html", "text/markdown") && showable(m, x)
+electron_showable(m, x) =
+    m ∉ ("application/vnd.dataresource+json", "text/html", "text/markdown") &&
+    showable(m, x)
 
 mutable struct ElectronDisplayConfig
     showable

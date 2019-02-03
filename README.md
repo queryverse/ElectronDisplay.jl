@@ -31,7 +31,7 @@ using ElectronDisplay
 ElectronDisplay.CONFIG.single_window = true
 ````
 
-To control objects to be handled by `ElectronDisplay`, you can set `ElectronDisplay.CONFIG.showable`.  By default, `ElectronDisplay` does not show markdown or HTML output.  To show everything in `ElectronDisplay` whenever it's supported, you can use:
+To control objects to be handled by `ElectronDisplay`, you can set `ElectronDisplay.CONFIG.showable`.  By default, `ElectronDisplay` does not show markdown, HTML, and `application/vnd.dataresource+json` output.  To show everything in `ElectronDisplay` whenever it's supported, you can use:
 
 ````julia
 using Markdown
