@@ -1,6 +1,7 @@
 using Gadfly
 using ElectronDisplay
 using Electron
+using VegaDatasets
 using Test
 
 @testset "ElectronDisplay" begin
@@ -22,6 +23,7 @@ f2 = display(p2)
 
 @test f2 === f   # Window is reused
 
+@test electrondisplay(dataset("cars")) isa Electron.Window
 @test electrondisplay(@doc reduce) isa Electron.Window
 
 end
