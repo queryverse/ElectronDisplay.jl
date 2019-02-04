@@ -2,7 +2,7 @@ module ElectronDisplay
 
 export electrondisplay
 
-using Electron, Base64
+using Electron, Base64, Markdown
 
 struct ElectronDisplayType <: Base.AbstractDisplay end
 
@@ -52,14 +52,8 @@ function displayhtml(payload; kwargs...)
     end
 end
 
-
-Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/html")}, x) =
-    displayhtml(repr("text/html", x))
-
-Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/html")}) = true
-
-function Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}, x)
-    html_page = string(
+displayhtmlbody(payload) =
+    displayhtml(string(
         """
         <!doctype html>
         <html>
@@ -77,15 +71,35 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}, x
         <body>
         <article class="markdown-body">
         """,
-        repr("text/html", x),
+        payload,
         """
          </article>
         </body>
          </html>
         """,
-    )
-    displayhtml(html_page)
+    ))
+
+
+function Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/html")}, x)
+    html_page = repr("text/html", x)
+    if occursin(r"<html\b"i, html_page)
+        # Detect if object `x` rendered itself as a "standalone" HTML page.
+        # If so, display it as-is:
+        displayhtml(html_page)
+    else
+        # Otherwise, i.e., if `x` only produced an HTML fragment, apply
+        # our default CSS to it:
+        displayhtmlbody(html_page)
+    end
 end
+
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/html")}) = true
+
+Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}, x) =
+    displayhtmlbody(repr("text/html", asmarkdown(x)))
+
+asmarkdown(x::Markdown.MD) = x
+asmarkdown(x) = Markdown.parse(repr("text/markdown", x))
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}) = true
 
@@ -256,10 +270,10 @@ function _display(showable, x)
         display(d,"image/svg+xml", x)
     elseif showable("image/png", x)
         display(d,"image/png", x)
-    elseif showable("text/markdown", x)
-        display(d, "text/markdown", x)
     elseif showable("text/html", x)
         display(d, "text/html", x)
+    elseif showable("text/markdown", x)
+        display(d, "text/markdown", x)
     else
         throw(MethodError(Base.display,(d,x)))
     end
