@@ -1,12 +1,11 @@
+using Gadfly
 using ElectronDisplay
 using Electron
-using VegaLite
-using DataFrames
 using Test
 
 @testset "ElectronDisplay" begin
 
-p1 =  DataFrame(x=rand(10),y=rand(10)) |> @vlplot(:point, x=:x, y=:y)
+p1 = plot(y=[1,2,3])
 
 f = display(p1)
 
@@ -18,7 +17,7 @@ f = display(p1)
 
 @test f === ElectronDisplay._getglobalwindow()
 
-p2 = DataFrame(x=rand(10),y=rand(10)) |> @vlplot(:point, x=:x, y=:y)
+p2 = plot(y=[1,2,3])
 f2 = display(p2)
 
 @test f2 === f   # Window is reused
