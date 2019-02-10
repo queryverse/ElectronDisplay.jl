@@ -1,3 +1,6 @@
+# ElectronDisplay.jl v0.7.0 Release Notes
+* Add support for TableTraits.jl sources
+
 # ElectronDisplay.jl v0.6.0 Release Notes
 * Update vega and vega-embed
 * Add support for "text/html" and "text/markdown" MIME types
