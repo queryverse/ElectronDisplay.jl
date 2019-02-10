@@ -4,6 +4,8 @@ export electrondisplay
 
 using Electron, Base64, Markdown
 
+import IteratorInterfaceExtensions, TableTraits, TableShowUtils
+
 struct ElectronDisplayType <: Base.AbstractDisplay end
 
 electron_showable(m, x) =
@@ -344,7 +346,46 @@ end
 Show `x` in Electron window.  Use MIME `mime` if specified.
 """
 electrondisplay(mime, x) = display(ElectronDisplayType(), mime, x)
-electrondisplay(x) = _display(showable, x)
+
+struct DataresourceTableTraitsWrapper{T}
+    source::T
+end
+
+function Base.show(io::IO, ::MIME"application/vnd.dataresource+json", source::DataresourceTableTraitsWrapper)
+    TableShowUtils.printdataresource(io, IteratorInterfaceExtensions.getiterator(source.source))
+end
+
+Base.showable(::MIME"application/vnd.dataresource+json", dt::DataresourceTableTraitsWrapper) = true
+
+struct CachedDataResourceString
+    content::String
+end
+
+Base.show(io::IO, ::MIME"application/vnd.dataresource+json", source::CachedDataResourceString) = print(io, source.content)
+
+Base.showable(::MIME"application/vnd.dataresource+json", dt::CachedDataResourceString) = true
+
+function electrondisplay(x)
+    if TableTraits.isiterabletable(x)!==false
+        if showable("application/vnd.dataresource+json", x)
+            _display(showable, x)
+        elseif TableTraits.isiterabletable(x)===true
+            _display(showable, DataresourceTableTraitsWrapper(x))
+        else
+            try
+                buffer = IOBuffer()
+                TableShowUtils.printdataresource(buffer, IteratorInterfaceExtensions.getiterator(x))
+
+                buffer_asstring = CachedDataResourceString(String(take!(buffer)))
+                _display(showable, buffer_asstring)
+            catch err
+                _display(showable, x)
+            end
+        end
+    else
+        _display(showable, x)
+    end
+end
 
 function __init__()
     Base.Multimedia.pushdisplay(ElectronDisplayType())
