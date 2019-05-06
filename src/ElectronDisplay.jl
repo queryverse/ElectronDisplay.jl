@@ -15,6 +15,7 @@ electron_showable(m, x) =
 mutable struct ElectronDisplayConfig
     showable
     single_window::Bool
+    focus::Bool
 end
 
 """
@@ -31,8 +32,11 @@ Configuration for ElectronDisplay.
 * `single_window::Bool = false`: If `true`, reuse existing window for
   displaying a new content.  If `false` (default), create a new window
   for each display.
+
+* `focus::Bool = true`: Focus the Electron window on `display` if `true`
+  (default).
 """
-const CONFIG = ElectronDisplayConfig(electron_showable, false)
+const CONFIG = ElectronDisplayConfig(electron_showable, false, true)
 
 const _window = Ref{Window}()
 
@@ -45,14 +49,15 @@ function _getglobalwindow()
     return _window[]
 end
 
-function displayhtml(payload; kwargs...)
+function displayhtml(payload; show=CONFIG.focus, kwargs...)
     if CONFIG.single_window
         w = _getglobalwindow()
         load(w, payload)
-        run(w.app, "BrowserWindow.fromId($(w.id)).show()")
+        showfun = show ? "show" : "showInactive"
+        run(w.app, "BrowserWindow.fromId($(w.id)).$showfun()")
         return w
     else
-        return Electron.Window(payload; kwargs...)
+        return Electron.Window(payload; show=show, kwargs...)
     end
 end
 
