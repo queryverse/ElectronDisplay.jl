@@ -49,15 +49,17 @@ function _getglobalwindow()
     return _window[]
 end
 
-function displayhtml(payload; show=CONFIG.focus, kwargs...)
+function displayhtml(payload; options::Dict=Dict{String,Any}())
     if CONFIG.single_window
         w = _getglobalwindow()
         load(w, payload)
-        showfun = show ? "show" : "showInactive"
+        showfun = get(options, "show", CONFIG.focus) ? "show" : "showInactive"
         run(w.app, "BrowserWindow.fromId($(w.id)).$showfun()")
         return w
     else
-        return Electron.Window(payload; show=show, kwargs...)
+        options = Dict{String,Any}(options)
+        get!(options, "show", CONFIG.focus)
+        return Electron.Window(payload; options=options)
     end
 end
 
