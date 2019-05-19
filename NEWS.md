@@ -1,6 +1,7 @@
-# ElectronDisplay.jl v1.0.0 Release Notes
+# ElectronDisplay.jl v0.8.0 Release Notes
 * Drop julia 0.7 support
 * Move to Project.toml
+* Add support for focus config
 
 # ElectronDisplay.jl v0.7.0 Release Notes
 * Add support for TableTraits.jl sources
