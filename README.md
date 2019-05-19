@@ -36,3 +36,9 @@ To control objects to be handled by `ElectronDisplay`, you can set `ElectronDisp
 using Markdown
 ElectronDisplay.CONFIG.showable = showable
 ````
+
+To override the default configuration temporary, use the keyword arguments to `electrondisplay`:
+
+````julia
+electrondisplay(@doc reduce; single_window=true, focus=false)
+````

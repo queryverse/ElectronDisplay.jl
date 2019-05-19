@@ -6,17 +6,39 @@ using Electron, Base64, Markdown
 
 import IteratorInterfaceExtensions, TableTraits, TableShowUtils
 
-struct ElectronDisplayType <: Base.AbstractDisplay end
+Base.@kwdef mutable struct ElectronDisplayConfig
+    showable = electron_showable
+    single_window::Bool = false
+    focus::Bool = true
+end
+
+"""
+    setconfig(config; kwargs...)
+
+Update a copy of `config` based on `kwargs`.
+"""
+setconfig(
+    config::ElectronDisplayConfig;
+    showable = config.showable,
+    single_window::Bool = config.single_window,
+    focus::Bool = config.focus,
+) =
+    ElectronDisplayConfig(
+        showable = showable,
+        single_window = single_window,
+        focus = focus,
+    )
+
+struct ElectronDisplayType <: Base.AbstractDisplay
+    config::ElectronDisplayConfig
+end
+
+ElectronDisplayType() = ElectronDisplayType(CONFIG)
+newdisplay(; config...) = ElectronDisplayType(setconfig(CONFIG; config...))
 
 electron_showable(m, x) =
     m ∉ ("application/vnd.dataresource+json", "text/html", "text/markdown") &&
     showable(m, x)
-
-mutable struct ElectronDisplayConfig
-    showable
-    single_window::Bool
-    focus::Bool
-end
 
 """
     ElectronDisplay.CONFIG
@@ -36,7 +58,7 @@ Configuration for ElectronDisplay.
 * `focus::Bool = true`: Focus the Electron window on `display` if `true`
   (default).
 """
-const CONFIG = ElectronDisplayConfig(electron_showable, false, true)
+const CONFIG = ElectronDisplayConfig()
 
 const _window = Ref{Window}()
 
@@ -49,22 +71,22 @@ function _getglobalwindow()
     return _window[]
 end
 
-function displayhtml(payload; options::Dict=Dict{String,Any}())
-    if CONFIG.single_window
+function displayhtml(d::ElectronDisplayType, payload; options::Dict=Dict{String,Any}())
+    if d.config.single_window
         w = _getglobalwindow()
         load(w, payload)
-        showfun = get(options, "show", CONFIG.focus) ? "show" : "showInactive"
+        showfun = get(options, "show", d.config.focus) ? "show" : "showInactive"
         run(w.app, "BrowserWindow.fromId($(w.id)).$showfun()")
         return w
     else
         options = Dict{String,Any}(options)
-        get!(options, "show", CONFIG.focus)
+        get!(options, "show", d.config.focus)
         return Electron.Window(payload; options=options)
     end
 end
 
-displayhtmlbody(payload) =
-    displayhtml(string(
+displayhtmlbody(d::ElectronDisplayType, payload) =
+    displayhtml(d, string(
         """
         <!doctype html>
         <html>
@@ -96,18 +118,18 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/html")}, x)
     if occursin(r"<html\b"i, html_page)
         # Detect if object `x` rendered itself as a "standalone" HTML page.
         # If so, display it as-is:
-        displayhtml(html_page)
+        displayhtml(d, html_page)
     else
         # Otherwise, i.e., if `x` only produced an HTML fragment, apply
         # our default CSS to it:
-        displayhtmlbody(html_page)
+        displayhtmlbody(d, html_page)
     end
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/html")}) = true
 
 Base.display(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}, x) =
-    displayhtmlbody(repr("text/html", asmarkdown(x)))
+    displayhtmlbody(d, repr("text/html", asmarkdown(x)))
 
 asmarkdown(x::Markdown.MD) = x
 asmarkdown(x) = Markdown.parse(repr("text/markdown", x))
@@ -119,7 +141,7 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/png")}, x)
 
     payload = string("<img src=\"data:image/png;base64,", img, "\"/>")
 
-    displayhtml(payload)
+    displayhtml(d, payload)
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/png")}) = true
@@ -127,7 +149,7 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/png")}) = true
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}, x)
     payload = stringmime(MIME("image/svg+xml"), x)
 
-    displayhtml(payload)
+    displayhtml(d, payload)
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}) = true
@@ -174,7 +196,7 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.veg
     </html>
     """
 
-    displayhtml(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    displayhtml(d, html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
@@ -218,7 +240,7 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.veg
     </html>
     """
 
-    displayhtml(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    displayhtml(d, html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vega.v3+json")}) = true
@@ -260,7 +282,7 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plo
     </html>
     """
 
-    displayhtml(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    displayhtml(d, html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}) = true
@@ -315,17 +337,13 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.dat
     </html>
     """
 
-    displayhtml(html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    displayhtml(d, html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.dataresource+json")}) = true
 
 function Base.display(d::ElectronDisplayType, x)
-    _display(CONFIG.showable, x)
-end
-
-function _display(showable, x)
-    d = ElectronDisplayType()
+    showable = d.config.showable
     if showable("application/vnd.vegalite.v2+json", x)
         display(d,MIME("application/vnd.vegalite.v2+json"), x)
     elseif showable("application/vnd.vega.v3+json", x)
@@ -348,11 +366,18 @@ function _display(showable, x)
 end
 
 """
-    electrondisplay([mime,] x)
+    electrondisplay([mime,] x; config...)
 
-Show `x` in Electron window.  Use MIME `mime` if specified.
+Show `x` in Electron window.  Use MIME `mime` if specified.  The keyword
+arguments can be used to override [`ElectronDisplay.CONFIG`](@ref) without
+mutating it.
+
+# Examples
+```julia
+electrondisplay(@doc reduce; single_window=true, focus=false)
+```
 """
-electrondisplay(mime, x) = display(ElectronDisplayType(), mime, x)
+electrondisplay(mime, x; config...) = display(newdisplay(; config...), mime, x)
 
 struct DataresourceTableTraitsWrapper{T}
     source::T
@@ -372,25 +397,26 @@ Base.show(io::IO, ::MIME"application/vnd.dataresource+json", source::CachedDataR
 
 Base.showable(::MIME"application/vnd.dataresource+json", dt::CachedDataResourceString) = true
 
-function electrondisplay(x)
+function electrondisplay(x; config...)
+    d = newdisplay(; showable=showable, config...)
     if TableTraits.isiterabletable(x)!==false
         if showable("application/vnd.dataresource+json", x)
-            _display(showable, x)
+            display(d, x)
         elseif TableTraits.isiterabletable(x)===true
-            _display(showable, DataresourceTableTraitsWrapper(x))
+            display(d, DataresourceTableTraitsWrapper(x))
         else
             try
                 buffer = IOBuffer()
                 TableShowUtils.printdataresource(buffer, IteratorInterfaceExtensions.getiterator(x))
 
                 buffer_asstring = CachedDataResourceString(String(take!(buffer)))
-                _display(showable, buffer_asstring)
+                display(d, buffer_asstring)
             catch err
-                _display(showable, x)
+                display(d, x)
             end
         end
     else
-        _display(showable, x)
+        display(d, x)
     end
 end
 
