@@ -4,6 +4,12 @@ using Electron
 using VegaDatasets
 using Test
 
+# Register ElectronDisplay in case this Julia session is started
+# without RPEL.
+if ElectronDisplay.ElectronDisplayType() ∉ Base.Multimedia.displays
+    Base.Multimedia.pushdisplay(ElectronDisplay.ElectronDisplayType())
+end
+
 @testset "ElectronDisplay" begin
 
 p1 = plot(y=[1,2,3])
