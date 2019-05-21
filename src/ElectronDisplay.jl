@@ -394,8 +394,23 @@ function electrondisplay(x)
     end
 end
 
+"""
+    afterreplinit(f)
+
+Like `atreplinit` but triggers `f` even after REPL is initialized when
+it is called.
+"""
+function afterreplinit(f)
+    # See: https://github.com/JuliaLang/Pkg.jl/blob/v1.0.2/src/Pkg.jl#L338
+    if isdefined(Base, :active_repl)
+        f()
+    else
+        atreplinit(_ -> f())
+    end
+end
+
 function __init__()
-    atreplinit() do _repl
+    afterreplinit() do
         Base.Multimedia.pushdisplay(ElectronDisplayType())
     end
 end
