@@ -395,7 +395,9 @@ function electrondisplay(x)
 end
 
 function __init__()
-    Base.Multimedia.pushdisplay(ElectronDisplayType())
+    atreplinit() do _repl
+        Base.Multimedia.pushdisplay(ElectronDisplayType())
+    end
 end
 
 end # module
