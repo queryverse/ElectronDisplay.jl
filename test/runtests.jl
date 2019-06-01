@@ -30,6 +30,10 @@ f2 = display(p2)
     ElectronDisplay.CONFIG.focus = focus
     @test electrondisplay(dataset("cars")) isa Electron.Window
     @test electrondisplay(@doc reduce) isa Electron.Window
+
+    config = (single_window=single_window, focus=focus)
+    @test electrondisplay(dataset("cars"); config...) isa Electron.Window
+    @test electrondisplay(@doc reduce; config...) isa Electron.Window
 end
 
 end
