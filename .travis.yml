@@ -1,5 +1,4 @@
 language: julia
-sudo: required
 os:
   - linux
   - osx
