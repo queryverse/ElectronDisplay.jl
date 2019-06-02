@@ -23,6 +23,17 @@ f2 = display(p2)
 
 @test f2 === f   # Window is reused
 
+eldt = ElectronDisplay.ElectronDisplayType()
+
+@test displayable(eldt, "text/html") == true
+@test displayable(eldt, "text/markdown") == true
+@test displayable(eldt, "image/png") == true
+@test displayable(eldt, "image/svg+xml") == true
+@test displayable(eldt, "application/vnd.vegalite.v2+json") == true
+@test displayable(eldt, "application/vnd.vega.v3+json") == true
+@test displayable(eldt, "application/vnd.plotly.v1+json") == true
+@test displayable(eldt, "application/vnd.dataresource+json") == true
+
 @testset "smoke test: single_window=$single_window focus=$focus " for
         single_window in [false, true],
         focus in [false, true]
