@@ -156,95 +156,6 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}) = true
 
 asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\" => "/")
 
-function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}, x)
-    payload = stringmime(MIME("application/vnd.vegalite.v2+json"), x)
-
-    html_page = """
-    <html>
-
-    <head>
-        <script src="file:///$(asset("vega", "vega.min.js"))"></script>
-        <script src="file:///$(asset("vega", "vega-lite.min.js"))"></script>
-        <script src="file:///$(asset("vega", "vega-embed.min.js"))"></script>
-    </head>
-    <body>
-      <div id="plotdiv"></div>
-    </body>
-
-    <style media="screen">
-      .vega-actions a {
-        margin-right: 10px;
-        font-family: sans-serif;
-        font-size: x-small;
-        font-style: italic;
-      }
-    </style>
-
-    <script type="text/javascript">
-
-      var opt = {
-        mode: "vega-lite",
-        actions: false
-      }
-
-      var spec = $payload
-
-      vegaEmbed('#plotdiv', spec, opt);
-
-    </script>
-
-    </html>
-    """
-
-    displayhtml(d, html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
-end
-
-Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
-
-function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vega.v3+json")}, x)
-    payload = stringmime(MIME("application/vnd.vega.v3+json"), x)
-
-    html_page = """
-    <html>
-
-    <head>
-        <script src="file:///$(asset("vega", "vega.min.js"))"></script>
-        <script src="file:///$(asset("vega", "vega-embed.min.js"))"></script>
-    </head>
-    <body>
-      <div id="plotdiv"></div>
-    </body>
-
-    <style media="screen">
-      .vega-actions a {
-        margin-right: 10px;
-        font-family: sans-serif;
-        font-size: x-small;
-        font-style: italic;
-      }
-    </style>
-
-    <script type="text/javascript">
-
-      var opt = {
-        mode: "vega",
-        actions: false
-      }
-
-      var spec = $payload
-
-      vegaEmbed('#plotdiv', spec, opt);
-
-    </script>
-
-    </html>
-    """
-
-    displayhtml(d, html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
-end
-
-Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vega.v3+json")}) = true
-
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}, x)
     payload = stringmime(MIME("application/vnd.plotly.v1+json"), x)
 
@@ -344,12 +255,18 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.datareso
 
 function Base.display(d::ElectronDisplayType, x)
     showable = d.config.showable
-    if showable("application/vnd.vegalite.v2+json", x)
+    if showable("application/vnd.vegalite.v3+json", x)
+        display(d,MIME("application/vnd.vegalite.v3+json"), x)
+    elseif showable("application/vnd.vegalite.v2+json", x)
         display(d,MIME("application/vnd.vegalite.v2+json"), x)
+    elseif showable("application/vnd.vega.v5+json", x)
+        display(d,MIME("application/vnd.vega.v5+json"), x)
+    elseif showable("application/vnd.vega.v4+json", x)
+        display(d,MIME("application/vnd.vega.v4+json"), x)
     elseif showable("application/vnd.vega.v3+json", x)
-            display(d,MIME("application/vnd.vega.v3+json"), x)
+        display(d,MIME("application/vnd.vega.v3+json"), x)
     elseif showable("application/vnd.plotly.v1+json", x)
-            display(d,MIME("application/vnd.plotly.v1+json"), x)
+        display(d,MIME("application/vnd.plotly.v1+json"), x)
     elseif showable("application/vnd.dataresource+json", x)
         display(d, "application/vnd.dataresource+json", x)
     elseif showable("image/svg+xml", x)
@@ -419,6 +336,8 @@ function electrondisplay(x; config...)
         display(d, x)
     end
 end
+
+include("vega.jl")
 
 function __init__()
     Base.Multimedia.pushdisplay(ElectronDisplayType())
