@@ -1,6 +1,6 @@
 name = "ElectronDisplay"
 uuid = "d872a56f-244b-5cc9-b574-2017b5b909a8"
-version = "0.8.0"
+version = "0.8.1-DEV"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
