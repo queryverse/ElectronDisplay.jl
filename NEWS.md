@@ -2,6 +2,7 @@
 * Drop julia 0.7 support
 * Move to Project.toml
 * Add support for focus config
+* Add support for multiple vega and vega-lite versions
 
 # ElectronDisplay.jl v0.7.0 Release Notes
 * Add support for TableTraits.jl sources
