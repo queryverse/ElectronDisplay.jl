@@ -40,6 +40,15 @@ eldt = ElectronDisplay.ElectronDisplayType()
 @test electrondisplay(vg4) isa Electron.Window
 @test electrondisplay(vg5) isa Electron.Window
 
+mdo = DummyDisplayable{MIME"text/markdown"}("""foo""")
+@test electrondisplay(mdo) isa Electron.Window
+
+pngo = DummyDisplayable{MIME"image/png"}("""fakedata""")
+@test electrondisplay(pngo) isa Electron.Window
+
+dro = DummyDisplayable{MIME"application/vnd.dataresource+json"}("""{"schema":{"fields":[{"name": "Miles_per_Gallon","type": "number"}]},"data":[{"Miles_per_Gallon":18}]}""")
+@test electrondisplay(dro) isa Electron.Window
+
 @test displayable(eldt, "text/html") == true
 @test displayable(eldt, "text/markdown") == true
 @test displayable(eldt, "image/png") == true
