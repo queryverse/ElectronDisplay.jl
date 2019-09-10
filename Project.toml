@@ -1,26 +1,26 @@
 name = "ElectronDisplay"
 uuid = "d872a56f-244b-5cc9-b574-2017b5b909a8"
-version = "0.8.1-DEV"
+version = "0.8.1"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 Electron = "a1bb12fb-d4d1-54b4-b10a-ee7951ef7ad3"
+TableShowUtils = "5e66a065-1f0a-5976-b372-e0b8c017ca10"
 IteratorInterfaceExtensions = "82899510-4779-5014-852e-03e436cf321d"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
-TableShowUtils = "5e66a065-1f0a-5976-b372-e0b8c017ca10"
 TableTraits = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
 
-[compat]
-Electron = "0.2, 0.3, 0.4, 1"
-IteratorInterfaceExtensions = "^0.1.1, ^1"
-TableShowUtils = "≥ 0.2.3"
-TableTraits = "^0.4.1, ^1"
-julia = "1"
-
 [extras]
-Gadfly = "c91e804a-d5a3-530f-b6f0-dfbca275c004"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 VegaDatasets = "0ae4a718-28b7-58ec-9efb-cded64d6d5b4"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Gadfly = "c91e804a-d5a3-530f-b6f0-dfbca275c004"
+
+[compat]
+julia = "1"
+Electron = "0.2, 0.3, 0.4, 1"
+TableShowUtils = "≥ 0.2.3"
+IteratorInterfaceExtensions = "^0.1.1, ^1"
+TableTraits = "^0.4.1, ^1"
 
 [targets]
 test = ["VegaDatasets", "Test", "Gadfly"]
