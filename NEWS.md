@@ -1,3 +1,6 @@
+# ElectronDisplay.jl v0.8.1 Release Notes
+* Update vega assets
+
 # ElectronDisplay.jl v0.8.0 Release Notes
 * Drop julia 0.7 support
 * Move to Project.toml
