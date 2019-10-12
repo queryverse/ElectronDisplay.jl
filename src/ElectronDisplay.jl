@@ -3,6 +3,7 @@ module ElectronDisplay
 export electrondisplay
 
 using Electron, Base64, Markdown
+using ConstructionBase: setproperties
 
 import IteratorInterfaceExtensions, TableTraits, TableShowUtils
 
@@ -12,29 +13,12 @@ Base.@kwdef mutable struct ElectronDisplayConfig
     focus::Bool = true
 end
 
-"""
-    setconfig(config; kwargs...)
-
-Update a copy of `config` based on `kwargs`.
-"""
-setconfig(
-    config::ElectronDisplayConfig;
-    showable = config.showable,
-    single_window::Bool = config.single_window,
-    focus::Bool = config.focus,
-) =
-    ElectronDisplayConfig(
-        showable = showable,
-        single_window = single_window,
-        focus = focus,
-    )
-
 struct ElectronDisplayType <: Base.AbstractDisplay
     config::ElectronDisplayConfig
 end
 
 ElectronDisplayType() = ElectronDisplayType(CONFIG)
-newdisplay(; config...) = ElectronDisplayType(setconfig(CONFIG; config...))
+newdisplay(; config...) = ElectronDisplayType(setproperties(CONFIG; config...))
 
 electron_showable(m, x) =
     m ∉ ("application/vnd.dataresource+json", "text/html", "text/markdown") &&
