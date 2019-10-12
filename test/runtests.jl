@@ -40,6 +40,11 @@ eldt = ElectronDisplay.ElectronDisplayType()
 @test electrondisplay(vg4) isa Electron.Window
 @test electrondisplay(vg5) isa Electron.Window
 
+@test_logs(
+    (:warn, r"The size of JSON representation.*exceeds.*max_json_bytes"),
+    electrondisplay(vl3png; max_json_bytes=-1)::Electron.Window
+)
+
 mdo = DummyDisplayable{MIME"text/markdown"}("""foo""")
 @test electrondisplay(mdo) isa Electron.Window
 

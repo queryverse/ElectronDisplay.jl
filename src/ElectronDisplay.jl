@@ -10,6 +10,7 @@ Base.@kwdef mutable struct ElectronDisplayConfig
     showable = electron_showable
     single_window::Bool = false
     focus::Bool = true
+    max_json_bytes::Int = 2^20
 end
 
 """
@@ -22,11 +23,13 @@ setconfig(
     showable = config.showable,
     single_window::Bool = config.single_window,
     focus::Bool = config.focus,
+    max_json_bytes::Int = config.max_json_bytes,
 ) =
     ElectronDisplayConfig(
         showable = showable,
         single_window = single_window,
         focus = focus,
+        max_json_bytes = max_json_bytes,
     )
 
 struct ElectronDisplayType <: Base.AbstractDisplay
@@ -57,6 +60,11 @@ Configuration for ElectronDisplay.
 
 * `focus::Bool = true`: Focus the Electron window on `display` if `true`
   (default).
+
+* `max_json_bytes::Int = $(ElectronDisplayConfig().max_json_bytes)`:
+  Maximum size in bytes for which JSON representation is used.  Otherwise,
+  convert visualization locally in a binary form before sending it to the
+  Electron display.  Currently only Vega and Vega-Lite support this.
 """
 const CONFIG = ElectronDisplayConfig()
 
