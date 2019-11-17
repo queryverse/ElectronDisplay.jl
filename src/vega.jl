@@ -65,44 +65,8 @@ function _display_vega(d, major_version, x)
     payload = stringmime(MIME("application/vnd.vega.v$major_version+json"), x)
     ans = _maybe_fallback_to(MIME"image/png"(), d, x, payload)
     ans === nothing || return ans
-
-    html_page = """
-    <html>
-
-    <head>
-        <script src="file:///$(asset("vega-$major_version", "vega.min.js"))"></script>
-        <script src="file:///$(asset("vega-embed", "vega-embed.min.js"))"></script>
-    </head>
-    <body>
-      <div id="plotdiv"></div>
-    </body>
-
-    <style media="screen">
-      .vega-actions a {
-        margin-right: 10px;
-        font-family: sans-serif;
-        font-size: x-small;
-        font-style: italic;
-      }
-    </style>
-
-    <script type="text/javascript">
-
-      var opt = {
-        mode: "vega",
-        actions: false
-      }
-
-      var spec = $payload
-
-      vegaEmbed('#plotdiv', spec, opt);
-
-    </script>
-
-    </html>
-    """
-
-    displayhtml(d, html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))  
+    print("Payload: " + payload)
+    displayhtml(d, payload, options=Dict("webPreferences" => Dict("webSecurity" => false)))  
 end
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}, x)

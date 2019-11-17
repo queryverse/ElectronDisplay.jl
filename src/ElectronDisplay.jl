@@ -6,6 +6,9 @@ using Electron, Base64, Markdown
 
 import IteratorInterfaceExtensions, TableTraits, TableShowUtils
 
+asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\" => "/")
+react_html_url = replace(normpath(joinpath(@__DIR__, "..", "build", "index.html")), "\\" => "/")
+
 Base.@kwdef mutable struct ElectronDisplayConfig
     showable = electron_showable
     single_window::Bool = false
@@ -77,6 +80,22 @@ function _getglobalwindow()
             options=Dict("webPreferences" => Dict("webSecurity" => false)))
     end
     return _window[]
+end
+
+const _plot_window = Ref{Window}()
+
+function _getglobalplotwindow()
+    if !(isdefined(_plot_window, 1) && _plot_window[].exists)
+        _plot_window[] = Electron.Window(
+            URI("file://$(react_html_url)"),
+            options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    end
+    return _plot_window[]
+end
+
+function displayplot(type::String, data)
+    w = _getglobalplotwindow()
+    run(w, "addPlot({type: \"$(type)\", data:\"$(data)\"})")
 end
 
 function displayhtml(d::ElectronDisplayType, payload; options::Dict=Dict{String,Any}())
@@ -167,8 +186,6 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}, x
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}) = true
-
-asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\" => "/")
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}, x)
     payload = stringmime(MIME("application/vnd.plotly.v1+json"), x)

@@ -1,0 +1,17 @@
+.left-panel {
+  position: absolute;
+  width: 20%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  border: black 1px solid;
+}
+
+.main-plot {
+  position: absolute;
+  width: 80%;
+  height: 100%;
+  left: 20%;
+  top: 0;
+  border: black 1px solid;
+}
