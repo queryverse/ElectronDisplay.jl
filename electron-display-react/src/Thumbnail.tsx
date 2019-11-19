@@ -9,7 +9,7 @@ export type ThumbnailProps = {
 const Thumbnail = ({index, onClick} : ThumbnailProps) => {
   return (
     <div className="Thumbnail" onClick={onClick}>
-      This is a Thumbnail with index {index}
+      Plot {index}
     </div>
   );
 }

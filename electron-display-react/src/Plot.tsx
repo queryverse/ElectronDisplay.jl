@@ -119,6 +119,7 @@ addPlot({type: "vega", data:
 
 const Plot = ({plot} : PlotProps) => {
   if (plot) {
+    console.log(plot.data);
     switch (plot.type) {
       case "vega":
         return (
