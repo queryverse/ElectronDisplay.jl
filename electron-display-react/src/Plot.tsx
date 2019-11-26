@@ -1,10 +1,12 @@
 import React from 'react';
 import { Vega, VegaLite } from 'react-vega';
 // import { VisualizationSpec } from 'vega-embed';
+import { vega } from 'vega-embed';
 import { PlotData } from './App';
 
 export type PlotProps = {
     plot: PlotData | null,
+    onThumbnailUpdate: (thumbnailURL:string) => void
 }
 
 /* Example spec:
@@ -117,17 +119,26 @@ addPlot({type: "vega", data:
   ]
 }})*/
 
-const Plot = ({plot} : PlotProps) => {
+const Plot = ({plot, onThumbnailUpdate} : PlotProps) => {
   if (plot) {
-    console.log(plot.data);
+    // console.log(plot.data);
+
+    // For developers: uncomment the code below to expose vega
+    (window as any).vega = vega;
     switch (plot.type) {
       case "vega":
+        if (!plot.thumbnail) {
+          // render a thumbnail if there is no thumbnail in the plot object
+          new vega.View(vega.parse(plot.data)).initialize().toCanvas().then(canvas =>
+            (onThumbnailUpdate(canvas.toDataURL()))
+          );
+        }
         return (
-          <Vega spec={plot.data} />
+          <Vega spec={plot.data} className="vega-plot"/>
         );
       case "vega-lite":
         return (
-          <VegaLite spec={plot.data} />
+          <VegaLite spec={plot.data} className="vegalite-plot"/>
         );
       case "image":
         return <img src={plot.data} alt="Plot"></img>

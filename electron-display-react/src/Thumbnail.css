@@ -1,5 +1,10 @@
 .Thumbnail {
     margin: 10px;
     border: grey solid 1px;
+    text-align: center;
     height: 200px;
+}
+
+.thumbnail-image {
+    width: 80%;
 }

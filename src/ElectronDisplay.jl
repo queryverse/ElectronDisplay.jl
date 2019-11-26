@@ -95,7 +95,8 @@ end
 
 function displayplot(d::ElectronDisplayType, type::String, data; options::Dict=Dict{String,Any}())
     w = _getglobalplotwindow()
-    run(w, "addPlot({type: '$(type)', data:'$(data)'})")
+    println("addPlot({type: '$(type)', data: $(data)})")
+    run(w, "addPlot({type: '$(type)', data: $(data)})")
 
     showfun = get(options, "show", d.config.focus) ? "show" : "showInactive"
     run(w.app, "BrowserWindow.fromId($(w.id)).$showfun()")
@@ -175,7 +176,7 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}) = true
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/png")}, x)
     img = stringmime(MIME("image/png"), x)
 
-    imgdata = "data:image/png;base64, $(img) "
+    imgdata = "'data:image/png;base64, $(img)'"
 
     displayplot(d, "image", imgdata)
 end
@@ -184,7 +185,7 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/png")}) = true
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}, x)
     img = stringmime(MIME("image/svg+xml"), x)
-    imgdata = "data:image/svg+xml;base64, $(img) "
+    imgdata = "'data:image/svg+xml;base64, $(img)'"
 
     displayplot(d, "image", imgdata)
 end
