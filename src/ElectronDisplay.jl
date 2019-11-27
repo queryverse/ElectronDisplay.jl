@@ -6,8 +6,10 @@ using Electron, Base64, Markdown
 
 import IteratorInterfaceExtensions, TableTraits, TableShowUtils
 
+using FilePaths
+
 asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\" => "/")
-react_html_url = replace(normpath(joinpath(@__DIR__, "..", "build", "index.html")), "\\" => "/")
+react_html_url = join(@__PATH__, "..", "build", "index.html")
 
 Base.@kwdef mutable struct ElectronDisplayConfig
     showable = electron_showable
@@ -87,7 +89,7 @@ const _plot_window = Ref{Window}()
 function _getglobalplotwindow()
     if !(isdefined(_plot_window, 1) && _plot_window[].exists)
         _plot_window[] = Electron.Window(
-            URI("file://$(react_html_url)"),
+            URI(react_html_url),
             options=Dict("webPreferences" => Dict("webSecurity" => false)))
     end
     return _plot_window[]
@@ -95,7 +97,6 @@ end
 
 function displayplot(d::ElectronDisplayType, type::String, data; options::Dict=Dict{String,Any}())
     w = _getglobalplotwindow()
-    println("addPlot({type: '$(type)', data: $(data)})")
     run(w, "addPlot({type: '$(type)', data: $(data)})")
 
     showfun = get(options, "show", d.config.focus) ? "show" : "showInactive"
