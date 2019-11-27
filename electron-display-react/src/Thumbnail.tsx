@@ -10,7 +10,7 @@ export type ThumbnailProps = {
 const Thumbnail = ({index, onClick, thumbnailURL} : ThumbnailProps) => {
   return (
     <div className="Thumbnail" onClick={onClick}>
-      <p>Plot {index}</p>
+      <p>Plot {index + 1}</p>
       {thumbnailURL && <img src={thumbnailURL} className="thumbnail-image" alt="" />}
     </div>
   );
