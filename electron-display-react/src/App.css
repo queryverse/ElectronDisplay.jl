@@ -5,6 +5,7 @@
   left: 0;
   top: 0;
   border: black 1px solid;
+  overflow-y: scroll;
 }
 
 .main-plot {
