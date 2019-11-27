@@ -95,7 +95,6 @@ end
 
 function displayplot(d::ElectronDisplayType, type::String, data; options::Dict=Dict{String,Any}())
     w = _getglobalplotwindow()
-    println("addPlot({type: '$(type)', data: $(data)})")
     run(w, "addPlot({type: '$(type)', data: $(data)})")
 
     showfun = get(options, "show", d.config.focus) ? "show" : "showInactive"

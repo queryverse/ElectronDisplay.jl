@@ -26,13 +26,16 @@ export class App extends Component<{}, AppState> {
     (window as any).switchTo = this.switchTo;
   }
 
-  addPlot = (plot: PlotData) => {
+  addPlot = (plot: PlotData, noSwitch: Boolean = false) => {
     this.setState((state) => (
       {
         ...state,
         plots: [...state.plots, plot],
       }
     ));
+    if (!noSwitch) {
+      this.switchTo(this.state.plots.length - 1);
+    }
   }
 
   switchTo = (index: number) => {
