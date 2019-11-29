@@ -40,6 +40,11 @@ eldt = ElectronDisplay.ElectronDisplayType()
 @test electrondisplay(vg4) isa Electron.Window
 @test electrondisplay(vg5) isa Electron.Window
 
+@testset "explicit window" begin
+    @test electrondisplay(f, p1) === f
+    @test electrondisplay(f, "text/html", p1) === f
+end
+
 @test_logs(
     (:warn, r"The size of JSON representation.*exceeds.*max_json_bytes"),
     electrondisplay(vl3png; max_json_bytes=-1)::Electron.Window

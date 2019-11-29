@@ -34,10 +34,12 @@ setconfig(
 
 struct ElectronDisplayType <: Base.AbstractDisplay
     config::ElectronDisplayConfig
+    window::Union{Window, Nothing}
 end
 
-ElectronDisplayType() = ElectronDisplayType(CONFIG)
-newdisplay(; config...) = ElectronDisplayType(setconfig(CONFIG; config...))
+ElectronDisplayType() = ElectronDisplayType(CONFIG, nothing)
+newdisplay(window::Union{Window, Nothing} = nothing; config...) =
+    ElectronDisplayType(setconfig(CONFIG; config...), window)
 
 electron_showable(m, x) =
     m ∉ ("application/vnd.dataresource+json", "text/html", "text/markdown") &&
@@ -80,8 +82,8 @@ function _getglobalwindow()
 end
 
 function displayhtml(d::ElectronDisplayType, payload; options::Dict=Dict{String,Any}())
-    if d.config.single_window
-        w = _getglobalwindow()
+    if d.window !== nothing || d.config.single_window
+        w = d.window !== nothing ? d.window : _getglobalwindow()
         load(w, payload)
         showfun = get(options, "show", d.config.focus) ? "show" : "showInactive"
         run(w.app, "BrowserWindow.fromId($(w.id)).$showfun()")
@@ -297,18 +299,26 @@ function Base.display(d::ElectronDisplayType, x)
 end
 
 """
-    electrondisplay([mime,] x; config...)
+    electrondisplay([window,] [mime,] x; config...)
 
-Show `x` in Electron window.  Use MIME `mime` if specified.  The keyword
+Show `x` in Electron `window`.  Use MIME `mime` if specified.  The keyword
 arguments can be used to override [`ElectronDisplay.CONFIG`](@ref) without
 mutating it.
 
 # Examples
 ```julia
-electrondisplay(@doc reduce; single_window=true, focus=false)
+w = electrondisplay(@doc reduce; single_window=true, focus=false)
+electrondisplay(w, @doc mapreduce)
 ```
 """
-electrondisplay(mime, x; config...) = display(newdisplay(; config...), mime, x)
+electrondisplay(mime, x; config...) =
+    _electrondisplay(nothing, mime, x; config...)
+electrondisplay(window::Window, mime, x; config...) =
+    _electrondisplay(window, mime, x; config...)
+_electrondisplay(window, mime, x; config...) =
+    display(newdisplay(window; config...), mime, x)
+# `_electrondisplay` is for not exposing implementation detail that
+# `window = nothing` means the default window.
 
 struct DataresourceTableTraitsWrapper{T}
     source::T
@@ -328,8 +338,10 @@ Base.show(io::IO, ::MIME"application/vnd.dataresource+json", source::CachedDataR
 
 Base.showable(::MIME"application/vnd.dataresource+json", dt::CachedDataResourceString) = true
 
-function electrondisplay(x; config...)
-    d = newdisplay(; showable=showable, config...)
+electrondisplay(x; config...) = _electrondisplay(nothing, x; config...)
+electrondisplay(window::Window, x; config...) = _electrondisplay(window, x; config...)
+function _electrondisplay(window, x; config...)
+    d = newdisplay(window; showable=showable, config...)
     if TableTraits.isiterabletable(x)!==false
         if showable("application/vnd.dataresource+json", x)
             display(d, x)
