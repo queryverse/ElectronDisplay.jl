@@ -17,10 +17,10 @@ Gadfly = "c91e804a-d5a3-530f-b6f0-dfbca275c004"
 
 [compat]
 julia = "1"
-Electron = "0.2, 0.3, 0.4, 1"
-TableShowUtils = "≥ 0.2.3"
-IteratorInterfaceExtensions = "^0.1.1, ^1"
-TableTraits = "^0.4.1, ^1"
+Electron = "0.2, 0.3, 0.4, 1, 2"
+TableShowUtils = "0.2.3"
+IteratorInterfaceExtensions = "0.1.1, 1"
+TableTraits = "0.4.1, 1"
 
 [targets]
 test = ["VegaDatasets", "Test", "Gadfly"]
