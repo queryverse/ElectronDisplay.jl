@@ -187,6 +187,7 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/png")}) = true
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}, x)
     img = stringmime(MIME("image/svg+xml"), x)
     imgdata = "`data:image/svg+xml;utf8, $(img)`" # SVG does not need base64 encoding
+    imgdata = replace(imgdata, "#"=>"%23")
 
     displayplot(d, "image", imgdata)
 end
