@@ -9,7 +9,7 @@ import IteratorInterfaceExtensions, TableTraits, TableShowUtils
 using FilePaths
 
 asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\" => "/")
-react_html_url = join(@__PATH__, "..", "build", "index.html")
+react_html_url = join(@__PATH__, "..", "assets", "plotgallery", "index.html")
 
 Base.@kwdef mutable struct ElectronDisplayConfig
     showable = electron_showable
