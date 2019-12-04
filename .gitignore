@@ -3,3 +3,5 @@
 *.jl.mem
 .vscode
 lcov.info
+.DS_Store
+*.log

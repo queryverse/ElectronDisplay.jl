@@ -6,6 +6,11 @@ using Electron, Base64, Markdown
 
 import IteratorInterfaceExtensions, TableTraits, TableShowUtils
 
+using FilePaths
+
+asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\" => "/")
+react_html_url = join(@__PATH__, "..", "assets", "plotgallery", "index.html")
+
 Base.@kwdef mutable struct ElectronDisplayConfig
     showable = electron_showable
     single_window::Bool = false
@@ -77,6 +82,25 @@ function _getglobalwindow()
             options=Dict("webPreferences" => Dict("webSecurity" => false)))
     end
     return _window[]
+end
+
+const _plot_window = Ref{Window}()
+
+function _getglobalplotwindow()
+    if !(isdefined(_plot_window, 1) && _plot_window[].exists)
+        _plot_window[] = Electron.Window(
+            URI(react_html_url),
+            options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    end
+    return _plot_window[]
+end
+
+function displayplot(d::ElectronDisplayType, type::String, data; options::Dict=Dict{String,Any}())
+    w = _getglobalplotwindow()
+    run(w, "addPlot({type: '$(type)', data: $(data)})")
+
+    showfun = get(options, "show", d.config.focus) ? "show" : "showInactive"
+    run(w.app, "BrowserWindow.fromId($(w.id)).$showfun()")
 end
 
 function displayhtml(d::ElectronDisplayType, payload; options::Dict=Dict{String,Any}())
@@ -153,22 +177,24 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("text/markdown")}) = true
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/png")}, x)
     img = stringmime(MIME("image/png"), x)
 
-    payload = string("<img src=\"data:image/png;base64,", img, "\"/>")
+    imgdata = "`data:image/png;base64, $(img)`"
 
-    displayhtml(d, payload)
+    displayplot(d, "image", imgdata)
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/png")}) = true
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}, x)
-    payload = stringmime(MIME("image/svg+xml"), x)
+    img = stringmime(MIME("image/svg+xml"), x)
+    imgdata = "`data:image/svg+xml;utf8, $(img)`" # SVG does not need base64 encoding
 
-    displayhtml(d, payload)
+    # TODO Is there are more elegant way to to this?
+    imgdata = replace(imgdata, "#"=>"%23")
+
+    displayplot(d, "image", imgdata)
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("image/svg+xml")}) = true
-
-asset(url...) = replace(normpath(joinpath(@__DIR__, "..", "assets", url...)), "\\" => "/")
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.plotly.v1+json")}, x)
     payload = stringmime(MIME("application/vnd.plotly.v1+json"), x)
