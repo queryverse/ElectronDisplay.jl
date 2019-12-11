@@ -60,6 +60,7 @@ include("construct_vega_specs.jl")
     @test displayable(eldt, "image/svg+xml") == true
     @test displayable(eldt, "application/vnd.vegalite.v2+json") == true
     @test displayable(eldt, "application/vnd.vegalite.v3+json") == true
+    @test displayable(eldt, "application/vnd.vegalite.v4+json") == true
     @test displayable(eldt, "application/vnd.vega.v3+json") == true
     @test displayable(eldt, "application/vnd.vega.v4+json") == true
     @test displayable(eldt, "application/vnd.vega.v5+json") == true
