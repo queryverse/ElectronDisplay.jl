@@ -1,5 +1,6 @@
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v3+json")}) = true
+Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v4+json")}) = true
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vega.v3+json")}) = true
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vega.v4+json")}) = true
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vega.v5+json")}) = true
@@ -36,6 +37,10 @@ end
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v3+json")}, x)
     return _display_vegalite(d, "3", "5", x)
+end
+
+function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v4+json")}, x)
+    return _display_vegalite(d, "4", "5", x)
 end
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vega.v3+json")}, x)

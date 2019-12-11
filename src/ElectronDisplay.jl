@@ -295,7 +295,9 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.datareso
 
 function Base.display(d::ElectronDisplayType, x)
     showable = d.config.showable
-    if showable("application/vnd.vegalite.v3+json", x)
+    if showable("application/vnd.vegalite.v4+json", x)
+        display(d,MIME("application/vnd.vegalite.v4+json"), x)
+    elseif showable("application/vnd.vegalite.v3+json", x)
         display(d,MIME("application/vnd.vegalite.v3+json"), x)
     elseif showable("application/vnd.vegalite.v2+json", x)
         display(d,MIME("application/vnd.vegalite.v2+json"), x)
