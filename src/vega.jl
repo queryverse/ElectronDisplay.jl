@@ -21,14 +21,14 @@ function _display_vegalite(d, major_version_vegalite, major_version_vega, x)
     payload = stringmime(MIME("application/vnd.vegalite.v$major_version_vegalite+json"), x)
     ans = _maybe_fallback_to(MIME"image/png"(), d, x, payload)
     ans === nothing || return ans
-    displayplot(d, "vega-lite", payload, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    displayplot(d, "vega-lite", JSON.JSONText(payload), options=Dict("webPreferences" => Dict("webSecurity" => false)))
 end
 
 function _display_vega(d, major_version, x)
     payload = stringmime(MIME("application/vnd.vega.v$major_version+json"), x)
     ans = _maybe_fallback_to(MIME"image/png"(), d, x, payload)
     ans === nothing || return ans
-    displayplot(d, "vega", payload, options=Dict("webPreferences" => Dict("webSecurity" => false)))  
+    displayplot(d, "vega", JSON.JSONText(payload), options=Dict("webPreferences" => Dict("webSecurity" => false)))  
 end
 
 function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.vegalite.v2+json")}, x)
