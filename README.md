@@ -7,7 +7,11 @@
 
 ## Overview
 
+<img src="screenshot.png" alt="ElectronDisplay.jl screenshot" width="50%" align="right" />
+
 This package provides a display for figures and plots. When you load the package, it will push a new display onto the julia display stack and from then on it will display any value that can be rendered as png, svg, vega, vega-lite or plotly in an electron based window. This is especially handy when one works on the REPL and wants plots to show up in a nice window.
+
+<br clear="all"/>
 
 ## Getting Started
 
