@@ -75,11 +75,131 @@ const CONFIG = ElectronDisplayConfig()
 
 const _window = Ref{Window}()
 
+function initialize_window(w)
+    run(w.app, """
+    const { app, Menu, webContents } = require('electron')
+    const isMac = process.platform === 'darwin'
+
+    const template = [
+      // { role: 'appMenu' }
+      ...(isMac ? [{
+        label: app.name,
+        submenu: [
+          // { role: 'about' },
+          // { type: 'separator' },
+          // { role: 'services' },
+          // { type: 'separator' },
+          { role: 'hide' },
+          { role: 'hideothers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { role: 'quit' }
+        ]
+      }] : []),
+      // { role: 'fileMenu' }
+      {
+        label: 'File',
+        submenu: [
+          isMac ? { role: 'close' } : { role: 'quit' }
+        ]
+      },
+      // { role: 'editMenu' }
+      {
+        label: 'Edit',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          // { role: 'cut' },
+          { role: 'copy' },
+          // { role: 'paste' },
+          {
+            label: 'Delete',
+            click: async () => {
+              // Delete
+              let currentWebContents = webContents.getFocusedWebContents();
+              if (currentWebContents) {
+                currentWebContents.executeJavaScript(`if (window.deleteCurrentPlot) {
+                  window.deleteCurrentPlot();
+                }`);
+              }
+            }
+          },
+          ...(isMac ? [
+            // { role: 'pasteAndMatchStyle' },
+            // { role: 'delete' },
+            // { role: 'selectAll' },
+            { type: 'separator' },
+            {
+              label: 'Speech',
+              submenu: [
+                { role: 'startspeaking' },
+                { role: 'stopspeaking' }
+              ]
+            }
+          ] : [
+            // { role: 'delete' },
+            // { type: 'separator' },
+            // { role: 'selectAll' }
+          ])
+        ]
+      },
+      // { role: 'viewMenu' }
+      {
+        label: 'View',
+        submenu: [
+          // { role: 'reload' },
+          // { role: 'forcereload' },
+          { role: 'toggledevtools' },
+          // { type: 'separator' },
+          // { role: 'resetzoom' },
+          // { role: 'zoomin' },
+          // { role: 'zoomout' },
+          // { type: 'separator' },
+          { role: 'togglefullscreen' }
+        ]
+      },
+      // { role: 'windowMenu' }
+      {
+        label: 'Window',
+        submenu: [
+          { role: 'minimize' },
+          { role: 'zoom' },
+          ...(isMac ? [
+            { type: 'separator' },
+            { role: 'front' },
+            { type: 'separator' },
+            { role: 'window' }
+          ] : [
+            { role: 'close' }
+          ])
+        ]
+      },
+      {
+        role: 'help',
+        submenu: [
+          {
+            label: 'Learn More About ElectronDisplay',
+            click: async () => {
+              const { shell } = require('electron')
+              await shell.openExternal('https://github.com/queryverse/ElectronDisplay.jl')
+            }
+          }
+        ]
+      }
+    ]
+    
+    const menu = Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(menu)
+    """)
+end
+
 function _getglobalwindow()
     if !(isdefined(_window, 1) && _window[].exists)
         _window[] = Electron.Window(
             URI("about:blank"),
             options=Dict("webPreferences" => Dict("webSecurity" => false)))
+        initialize_window(_window[])
     end
     return _window[]
 end
@@ -91,6 +211,7 @@ function _getglobalplotwindow()
         _plot_window[] = Electron.Window(
             URI(react_html_url),
             options=Dict("webPreferences" => Dict("webSecurity" => false)))
+        initialize_window(_plot_window[])
     end
     return _plot_window[]
 end
