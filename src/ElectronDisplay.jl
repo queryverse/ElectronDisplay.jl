@@ -153,8 +153,37 @@ function initialize_window(w)
           { role: 'toggledevtools' },
           // { type: 'separator' },
           // { role: 'resetzoom' },
+          {
+            label: 'Zoom Reset (For Static Images)',
+            click: async () => {
+              let currentWebContents = webContents.getFocusedWebContents();
+              if (currentWebContents) {
+                currentWebContents.executeJavaScript(`window.zoomReset()`);
+              }
+            }
+          },
           // { role: 'zoomin' },
+          {
+            label: 'Zoom In (For Static Images)',
+            click: async () => {
+              // Delete
+              let currentWebContents = webContents.getFocusedWebContents();
+              if (currentWebContents) {
+                currentWebContents.executeJavaScript(`window.zoomIn()`);
+              }
+            }
+          },
           // { role: 'zoomout' },
+          {
+            label: 'Zoom Out (For Static Images)',
+            click: async () => {
+              // Delete
+              let currentWebContents = webContents.getFocusedWebContents();
+              if (currentWebContents) {
+                currentWebContents.executeJavaScript(`window.zoomOut()`);
+              }
+            }
+          },
           // { type: 'separator' },
           { role: 'togglefullscreen' }
         ]
