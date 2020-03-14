@@ -150,7 +150,7 @@ function initialize_window(w)
         submenu: [
           // { role: 'reload' },
           // { role: 'forcereload' },
-          { role: 'toggledevtools' },
+          // { role: 'toggledevtools' },
           // { type: 'separator' },
           // { role: 'resetzoom' },
           {
@@ -189,21 +189,18 @@ function initialize_window(w)
         ]
       },
       // { role: 'windowMenu' }
-      {
+      ...(isMac ? [{
         label: 'Window',
         submenu: [
           { role: 'minimize' },
           { role: 'zoom' },
-          ...(isMac ? [
-            { type: 'separator' },
-            { role: 'front' },
-            { type: 'separator' },
-            { role: 'window' }
-          ] : [
-            { role: 'close' }
-          ])
+          { type: 'separator' },
+          { role: 'front' },
+          { type: 'separator' },
+          // { role: 'window' },
+          { role: 'close' },
         ]
-      },
+      }] : []),
       {
         role: 'help',
         submenu: [
