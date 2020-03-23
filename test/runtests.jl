@@ -4,6 +4,8 @@ using Electron
 using VegaDatasets
 using Test
 
+Electron.prep_test_env()
+
 struct DummyDisplayable{M}
     data
 end
