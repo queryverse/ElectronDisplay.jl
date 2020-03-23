@@ -79,7 +79,7 @@ function _getglobalwindow()
     if !(isdefined(_window, 1) && _window[].exists)
         _window[] = Electron.Window(
             URI("about:blank"),
-            options=Dict("webPreferences" => Dict("webSecurity" => false)))
+            options = Dict("webPreferences" => Dict("webSecurity" => false)))
     end
     return _window[]
 end
@@ -90,12 +90,12 @@ function _getglobalplotwindow()
     if !(isdefined(_plot_window, 1) && _plot_window[].exists)
         _plot_window[] = Electron.Window(
             URI(react_html_url),
-            options=Dict("webPreferences" => Dict("webSecurity" => false)))
+            options = Dict("webPreferences" => Dict("webSecurity" => false)))
     end
     return _plot_window[]
 end
 
-function displayplot(d::ElectronDisplayType, type::String, data; options::Dict=Dict{String,Any}())
+function displayplot(d::ElectronDisplayType, type::String, data; options::Dict = Dict{String,Any}())
     w = _getglobalplotwindow()
     run(w, "addPlot({type: '$(type)', data: $(JSON.json(data))})")
 
@@ -103,7 +103,7 @@ function displayplot(d::ElectronDisplayType, type::String, data; options::Dict=D
     run(w.app, "BrowserWindow.fromId($(w.id)).$showfun()")
 end
 
-function displayhtml(d::ElectronDisplayType, payload; options::Dict=Dict{String,Any}())
+function displayhtml(d::ElectronDisplayType, payload; options::Dict = Dict{String,Any}())
     if d.config.single_window
         w = _getglobalwindow()
         load(w, payload)
@@ -113,7 +113,7 @@ function displayhtml(d::ElectronDisplayType, payload; options::Dict=Dict{String,
     else
         options = Dict{String,Any}(options)
         get!(options, "show", d.config.focus)
-        return Electron.Window(payload; options=options)
+        return Electron.Window(payload; options = options)
     end
 end
 
@@ -251,7 +251,7 @@ function Base.display(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.dat
     </html>
     """
 
-    displayhtml(d, html_page, options=Dict("webPreferences" => Dict("webSecurity" => false)))
+    displayhtml(d, html_page, options = Dict("webPreferences" => Dict("webSecurity" => false)))
 end
 
 Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.dataresource+json")}) = true
@@ -259,31 +259,31 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.datareso
 function Base.display(d::ElectronDisplayType, x)
     showable = d.config.showable
     if showable("application/vnd.vegalite.v4+json", x)
-        display(d,MIME("application/vnd.vegalite.v4+json"), x)
+        display(d, MIME("application/vnd.vegalite.v4+json"), x)
     elseif showable("application/vnd.vegalite.v3+json", x)
-        display(d,MIME("application/vnd.vegalite.v3+json"), x)
+        display(d, MIME("application/vnd.vegalite.v3+json"), x)
     elseif showable("application/vnd.vegalite.v2+json", x)
-        display(d,MIME("application/vnd.vegalite.v2+json"), x)
+        display(d, MIME("application/vnd.vegalite.v2+json"), x)
     elseif showable("application/vnd.vega.v5+json", x)
-        display(d,MIME("application/vnd.vega.v5+json"), x)
+        display(d, MIME("application/vnd.vega.v5+json"), x)
     elseif showable("application/vnd.vega.v4+json", x)
-        display(d,MIME("application/vnd.vega.v4+json"), x)
+        display(d, MIME("application/vnd.vega.v4+json"), x)
     elseif showable("application/vnd.vega.v3+json", x)
-        display(d,MIME("application/vnd.vega.v3+json"), x)
+        display(d, MIME("application/vnd.vega.v3+json"), x)
     elseif showable("application/vnd.plotly.v1+json", x)
-        display(d,MIME("application/vnd.plotly.v1+json"), x)
+        display(d, MIME("application/vnd.plotly.v1+json"), x)
     elseif showable("application/vnd.dataresource+json", x)
         display(d, "application/vnd.dataresource+json", x)
     elseif showable("image/svg+xml", x)
-        display(d,"image/svg+xml", x)
+        display(d, "image/svg+xml", x)
     elseif showable("image/png", x)
-        display(d,"image/png", x)
+        display(d, "image/png", x)
     elseif showable("text/html", x)
         display(d, "text/html", x)
     elseif showable("text/markdown", x)
         display(d, "text/markdown", x)
     else
-        throw(MethodError(Base.display,(d,x)))
+        throw(MethodError(Base.display, (d, x)))
     end
 end
 
@@ -320,11 +320,11 @@ Base.show(io::IO, ::MIME"application/vnd.dataresource+json", source::CachedDataR
 Base.showable(::MIME"application/vnd.dataresource+json", dt::CachedDataResourceString) = true
 
 function electrondisplay(x; config...)
-    d = newdisplay(; showable=showable, config...)
-    if TableTraits.isiterabletable(x)!==false
+    d = newdisplay(; showable = showable, config...)
+    if TableTraits.isiterabletable(x) !== false
         if showable("application/vnd.dataresource+json", x)
             display(d, x)
-        elseif TableTraits.isiterabletable(x)===true
+        elseif TableTraits.isiterabletable(x) === true
             display(d, DataresourceTableTraitsWrapper(x))
         else
             try
