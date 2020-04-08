@@ -1,3 +1,11 @@
+# We add these methods only in the tests
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vegalite.v3+json")}) = true
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vegalite.v4+json")}) = true
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vega.v3+json")}) = true
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vega.v4+json")}) = true
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vega.v5+json")}) = true
+
 vl2 = DummyDisplayable{MIME"application/vnd.vegalite.v2+json"}("""
 {
   "data": {
