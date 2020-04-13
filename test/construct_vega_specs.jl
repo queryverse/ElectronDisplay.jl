@@ -338,7 +338,7 @@ dummy_png_bytes = UInt8[
 
 struct DummyVegaLitePNGHybrid end
 Base.show(io::IO, ::MIME"application/vnd.vegalite.v3+json", ::DummyVegaLitePNGHybrid) =
-    print(io, vl3)
+    print(io, vl3.data)
 Base.show(io::IO, ::MIME"image/png", ::DummyVegaLitePNGHybrid) =
     write(io, dummy_png_bytes)
 
