@@ -1,3 +1,11 @@
+# We add these methods only in the tests
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vegalite.v3+json")}) = true
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vegalite.v4+json")}) = true
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vega.v3+json")}) = true
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vega.v4+json")}) = true
+Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vega.v5+json")}) = true
+
 vl2 = DummyDisplayable{MIME"application/vnd.vegalite.v2+json"}("""
 {
   "data": {
@@ -330,7 +338,7 @@ dummy_png_bytes = UInt8[
 
 struct DummyVegaLitePNGHybrid end
 Base.show(io::IO, ::MIME"application/vnd.vegalite.v3+json", ::DummyVegaLitePNGHybrid) =
-    print(io, vl3)
+    print(io, vl3.data)
 Base.show(io::IO, ::MIME"image/png", ::DummyVegaLitePNGHybrid) =
     write(io, dummy_png_bytes)
 
