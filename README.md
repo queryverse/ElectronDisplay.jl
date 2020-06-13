@@ -9,7 +9,7 @@
 
 <img src="screenshot.png" alt="ElectronDisplay.jl screenshot" width="50%" align="right" />
 
-This package provides a display for figures and plots. When you load the package, it will push a new display onto the julia display stack and from then on it will display any value that can be rendered as png, svg, vega, vega-lite or plotly in an electron based window. This is especially handy when one works on the REPL and wants plots to show up in a nice window.
+This package provides a display for figures, plots and tables. When you load the package, it will push a new display onto the julia display stack and from then on it will display any value that can be rendered as png, svg, vega, vega-lite or plotly in an electron based window. This is especially handy when one works on the REPL and wants plots or tables to show up in a nice window.
 
 <br clear="all"/>
 
@@ -24,6 +24,8 @@ Pkg.add("ElectronDisplay")
 As soon as you load the package with ``using ElectronDisplay``, it will start to show plots that have the correct ``show`` methods in an electron window.
 
 `ElectronDisplay` also exports a function `electrondisplay`.  You can use `electrondisplay(x)` to show `x` explicitly in `ElectronDisplay` (e.g., when another display has higher precedence).  You can also use `electrondisplay(mime, x)` to specify a MIME to be used.  For example, to read the docstring of `reduce` in `ElectronDisplay`, you can use `electrondisplay(@doc reduce)`.
+
+See the original [announcement](https://www.queryverse.org/2019/02/13/electrondisplay/) for a quick start guide.
 
 ## Configuration
 
