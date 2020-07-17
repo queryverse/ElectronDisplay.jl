@@ -27,7 +27,7 @@ ElectronDisplay.CONFIG.single_window = true
 
 f = display(p1)
 
-@test f === ElectronDisplay._getglobalwindow()
+@test f === ElectronDisplay._getglobalplotwindow()
 
 p2 = plot(y=[1,2,3])
 f2 = display(p2)

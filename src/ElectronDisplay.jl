@@ -101,6 +101,8 @@ function displayplot(d::ElectronDisplayType, type::String, data; options::Dict=D
 
     showfun = get(options, "show", d.config.focus) ? "show" : "showInactive"
     run(w.app, "BrowserWindow.fromId($(w.id)).$showfun()")
+
+    return w
 end
 
 function displayhtml(d::ElectronDisplayType, payload; options::Dict=Dict{String,Any}())
