@@ -25,16 +25,16 @@ Update a copy of `config` based on `kwargs`.
 """
 setconfig(
     config::ElectronDisplayConfig;
-    showable = config.showable,
-    single_window::Bool = config.single_window,
-    focus::Bool = config.focus,
-    max_json_bytes::Int = config.max_json_bytes,
+    showable=config.showable,
+    single_window::Bool=config.single_window,
+    focus::Bool=config.focus,
+    max_json_bytes::Int=config.max_json_bytes,
 ) =
     ElectronDisplayConfig(
-        showable = showable,
-        single_window = single_window,
-        focus = focus,
-        max_json_bytes = max_json_bytes,
+        showable=showable,
+        single_window=single_window,
+        focus=focus,
+        max_json_bytes=max_json_bytes,
     )
 
 struct ElectronDisplayType <: Base.AbstractDisplay
@@ -261,31 +261,31 @@ Base.displayable(d::ElectronDisplayType, ::MIME{Symbol("application/vnd.datareso
 function Base.display(d::ElectronDisplayType, x)
     showable = d.config.showable
     if showable("application/vnd.vegalite.v4+json", x)
-        display(d,MIME("application/vnd.vegalite.v4+json"), x)
+        display(d, MIME("application/vnd.vegalite.v4+json"), x)
     elseif showable("application/vnd.vegalite.v3+json", x)
-        display(d,MIME("application/vnd.vegalite.v3+json"), x)
+        display(d, MIME("application/vnd.vegalite.v3+json"), x)
     elseif showable("application/vnd.vegalite.v2+json", x)
-        display(d,MIME("application/vnd.vegalite.v2+json"), x)
+        display(d, MIME("application/vnd.vegalite.v2+json"), x)
     elseif showable("application/vnd.vega.v5+json", x)
-        display(d,MIME("application/vnd.vega.v5+json"), x)
+        display(d, MIME("application/vnd.vega.v5+json"), x)
     elseif showable("application/vnd.vega.v4+json", x)
-        display(d,MIME("application/vnd.vega.v4+json"), x)
+        display(d, MIME("application/vnd.vega.v4+json"), x)
     elseif showable("application/vnd.vega.v3+json", x)
-        display(d,MIME("application/vnd.vega.v3+json"), x)
+        display(d, MIME("application/vnd.vega.v3+json"), x)
     elseif showable("application/vnd.plotly.v1+json", x)
-        display(d,MIME("application/vnd.plotly.v1+json"), x)
+        display(d, MIME("application/vnd.plotly.v1+json"), x)
     elseif showable("application/vnd.dataresource+json", x)
         display(d, "application/vnd.dataresource+json", x)
     elseif showable("image/svg+xml", x)
-        display(d,"image/svg+xml", x)
+        display(d, "image/svg+xml", x)
     elseif showable("image/png", x)
-        display(d,"image/png", x)
+        display(d, "image/png", x)
     elseif showable("text/html", x)
         display(d, "text/html", x)
     elseif showable("text/markdown", x)
         display(d, "text/markdown", x)
     else
-        throw(MethodError(Base.display,(d,x)))
+        throw(MethodError(Base.display, (d, x)))
     end
 end
 
@@ -323,10 +323,10 @@ Base.showable(::MIME"application/vnd.dataresource+json", dt::CachedDataResourceS
 
 function electrondisplay(x; config...)
     d = newdisplay(; showable=showable, config...)
-    if TableTraits.isiterabletable(x)!==false
+    if TableTraits.isiterabletable(x) !== false
         if showable("application/vnd.dataresource+json", x)
             display(d, x)
-        elseif TableTraits.isiterabletable(x)===true
+        elseif TableTraits.isiterabletable(x) === true
             display(d, DataresourceTableTraitsWrapper(x))
         else
             try
