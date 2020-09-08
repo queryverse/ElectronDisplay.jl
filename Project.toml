@@ -14,7 +14,7 @@ TableTraits = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
 
 [compat]
 Electron = "0.2, 0.3, 0.4, 1, 2, 3.0"
-FilePaths = "0.8"
+FilePaths = "0.8.1"
 IteratorInterfaceExtensions = "0.1.1, 1"
 JSON = "0.20, 0.21"
 TableShowUtils = "0.2.3"
