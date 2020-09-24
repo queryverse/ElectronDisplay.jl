@@ -1,6 +1,6 @@
 name = "ElectronDisplay"
 uuid = "d872a56f-244b-5cc9-b574-2017b5b909a8"
-version = "1.0.1"
+version = "1.0.2-DEV"
 
 [deps]
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
