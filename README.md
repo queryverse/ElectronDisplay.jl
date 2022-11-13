@@ -15,10 +15,10 @@ This package provides a display for figures, plots and tables. When you load the
 
 ## Getting Started
 
-You can install the package via the normal julia package manger:
+You can install the package via the normal julia package manager:
 
 ````julia
-Pkg.add("ElectronDisplay")
+using Pkg; Pkg.add("ElectronDisplay")
 ````
 
 As soon as you load the package with ``using ElectronDisplay``, it will start to show plots that have the correct ``show`` methods in an electron window.
