@@ -5,3 +5,7 @@
 lcov.info
 .DS_Store
 *.log
+docs/build/
+docs/Manifest.toml
+test-output*.*
+Manifest.toml
